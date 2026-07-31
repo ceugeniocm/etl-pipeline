@@ -5,6 +5,7 @@ transações, erros de lote (isolamento de linhas) e os modos de inserção:
 append, truncate e upsert.
 """
 
+from collections.abc import Callable, Mapping
 import logging
 from typing import Any
 
@@ -79,51 +80,74 @@ class Loader:
                 cursor.close()
 
     def load_batch(
-        self, batch_data: list[tuple[int, dict[str, Any]]]
+        self,
+        batch_data: list[tuple[int, dict[str, Any]]],
+        on_success: Callable[[int], None] | None = None,
     ) -> tuple[int, int]:
         """Grava um lote de registros no banco (FR-009, tarefa 38).
 
+        Respeita o tamanho de lote (batch_size) configurado, dividindo o conjunto
+        recebido em múltiplos sub-lotes se necessário.
+
         :param batch_data: lista de tuplas (número_da_linha, valores).
+        :param on_success: Callback chamado com o número da última linha commitada.
         :return: tupla com (quantidade_carregada, quantidade_falhada).
         """
         if not batch_data:
             return 0, 0
 
+        loaded = 0
+        failed = 0
+        batch_size = self._load_config.batch_size
         sql = self._get_insert_sql()
-        rows_to_insert = [
-            tuple(values.get(col) for col in self._columns)
-            for _, values in batch_data
-        ]
 
-        cursor = self._conn.cursor()
-        try:
-            # Parameterized executemany (Task 38)
-            cursor.executemany(sql, rows_to_insert)
-            self._conn.commit()  # Commit após sucesso do lote (Task 39)
-            return len(batch_data), 0
-        except mysql.connector.Error as err:
-            self._conn.rollback()
-            if self._load_config.on_batch_error == "abort":
-                first_row = batch_data[0][0]
-                raise LoadError(
+        # Divide em sub-lotes conforme batch_size (Task 38)
+        for i in range(0, len(batch_data), batch_size):
+            sub_batch = batch_data[i : i + batch_size]
+            rows_to_insert = [
+                tuple(values.get(col) for col in self._columns)
+                for _, values in sub_batch
+            ]
+
+            cursor = self._conn.cursor()
+            try:
+                # Parameterized executemany (Task 38)
+                cursor.executemany(sql, rows_to_insert)
+                self._conn.commit()  # Commit após sucesso do lote (Task 39)
+                loaded += len(sub_batch)
+
+                if on_success:
+                    on_success(sub_batch[-1][0])
+
+            except mysql.connector.Error as err:
+                self._conn.rollback()
+                if self._load_config.on_batch_error == "abort":
+                    first_row = sub_batch[0][0]
+                    raise LoadError(
+                        messages.ERR_LOAD_BATCH_FAILED.format(
+                            first_row=first_row, size=len(sub_batch), reason=str(err)
+                        ),
+                        cause=err,
+                    )
+
+                # Modo isolate: tenta linha a linha (Task 40)
+                logger.warning(
                     messages.ERR_LOAD_BATCH_FAILED.format(
-                        first_row=first_row, size=len(batch_data), reason=str(err)
-                    ),
-                    cause=err,
+                        first_row=sub_batch[0][0], size=len(sub_batch), reason=str(err)
+                    )
                 )
+                l, f = self._load_row_by_row(sub_batch, on_success)
+                loaded += l
+                failed += f
+            finally:
+                cursor.close()
 
-            # Modo isolate: tenta linha a linha (Task 40)
-            logger.warning(
-                messages.ERR_LOAD_BATCH_FAILED.format(
-                    first_row=batch_data[0][0], size=len(batch_data), reason=str(err)
-                )
-            )
-            return self._load_row_by_row(batch_data)
-        finally:
-            cursor.close()
+        return loaded, failed
 
     def _load_row_by_row(
-        self, batch_data: list[tuple[int, dict[str, Any]]]
+        self,
+        batch_data: list[tuple[int, dict[str, Any]]],
+        on_success: Callable[[int], None] | None = None,
     ) -> tuple[int, int]:
         """Tenta inserir cada linha individualmente após falha do lote (tarefa 40)."""
         loaded = 0
@@ -136,6 +160,8 @@ class Loader:
                 cursor.execute(sql, data)
                 self._conn.commit()
                 loaded += 1
+                if on_success:
+                    on_success(row_number)
             except mysql.connector.Error as err:
                 self._conn.rollback()
                 failed += 1

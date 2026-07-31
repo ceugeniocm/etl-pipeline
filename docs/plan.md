@@ -265,17 +265,17 @@ Write all `Rejection` records to the configured output file (CSV) with sheet, so
 
 ---
 
-## Group G — Restartability (Deferred)
+## Group G — Restartability
 
 ### G1. Checkpointing (`etl/checkpoint.py`)
 Persist the last committed source row position after each successful batch commit.
 - **Requirements**: FR-015
-- **Priority**: Low (Deferred)
+- **Priority**: Completed
 
 ### G2. Resume option
 A `--resume` flag that reads the checkpoint and skips source rows up to the recorded position.
 - **Requirements**: FR-015
-- **Priority**: Low (Deferred)
+- **Priority**: Completed
 
 ---
 

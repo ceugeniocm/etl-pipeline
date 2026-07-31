@@ -181,37 +181,37 @@ Mark a task complete by changing `[ ]` to `[x]`.
 
 ## Phase 7 — Testing and Quality Assurance
 
-- [ ] **55.** Implement the fixture generator producing `.xlsx` workbooks with valid rows, bad types, missing
+- [x] **55.** Implement the fixture generator producing `.xlsx` workbooks with valid rows, bad types, missing
   required fields, duplicate keys and empty cells. — *Plan: H1 · Req: NFR-005*
-- [ ] **56.** Write the end-to-end `test_pipeline.py` running a fixture workbook through the whole chain
+- [x] **56.** Write the end-to-end `test_pipeline.py` running a fixture workbook through the whole chain
   against the fake connection, asserting loaded/rejected counts and exit code. — *Plan: H3 · Req: NFR-005, NFR-003*
-- [ ] **57.** Write the optional/slow memory test asserting bounded memory growth on a large generated file.
+- [x] **57.** Write the optional/slow memory test asserting bounded memory growth on a large generated file.
   — *Plan: H4 · Req: NFR-001*
-- [ ] **58.** Write the optional/slow throughput test measuring rows/minute against the NFR-002 target.
+- [x] **58.** Write the optional/slow throughput test measuring rows/minute against the NFR-002 target.
   — *Plan: H4 · Req: NFR-002*
-- [ ] **59.** Write security tests proving passwords never appear in logs, messages, summaries or tracebacks.
+- [x] **59.** Write security tests proving passwords never appear in logs, messages, summaries or tracebacks.
   — *Plan: H5 · Req: NFR-004*
-- [ ] **60.** Write a test asserting every data-carrying SQL statement uses parameter placeholders rather than
+- [x] **60.** Write a test asserting every data-carrying SQL statement uses parameter placeholders rather than
   interpolated values. — *Plan: H5 · Req: NFR-004*
-- [ ] **61.** Verify `python3 -m unittest discover` runs the full suite green from the project root.
+- [x] **61.** Verify `python3 -m unittest discover` runs the full suite green from the project root.
   — *Plan: H2, H3 · Req: NFR-005*
-- [ ] **62.** Perform the PEP 8 pass over the whole package and add docstrings to all public functions and
+- [x] **62.** Perform the PEP 8 pass over the whole package and add docstrings to all public functions and
   classes. — *Plan: H6 · Req: NFR-006*
 
 ## Phase 8 — Documentation
 
-- [ ] **63.** Write usage documentation: installation, configuration keys, environment variables, CLI options,
+- [x] **63.** Write usage documentation: installation, configuration keys, environment variables, CLI options,
   exit codes and load modes. — *Plan: I1 · Req: NFR-008, FR-011, FR-012*
-- [ ] **64.** Update requirement statuses in `docs/requirements.md` to reflect delivered functionality.
+- [x] **64.** Update requirement statuses in `docs/requirements.md` to reflect delivered functionality.
   — *Plan: I2 · Req: NFR-010*
-- [ ] **65.** Update `.junie/AGENTS.md` if the run/test commands change as a result of the new package layout.
+- [x] **65.** Update `.junie/AGENTS.md` if the run/test commands change as a result of the new package layout.
   — *Plan: I2 · Req: NFR-010*
 
-## Phase 9 — Restartability (Deferred)
+## Phase 9 — Restartability
 
-- [ ] **66.** Implement `etl/checkpoint.py` persisting the last committed source row position after each
+- [x] **66.** Implement `etl/checkpoint.py` persisting the last committed source row position after each
   batch commit. — *Plan: G1 · Req: FR-015*
-- [ ] **67.** Implement the `--resume` flag skipping source rows up to the recorded checkpoint.
+- [x] **67.** Implement the `--resume` flag skipping source rows up to the recorded checkpoint.
   — *Plan: G2 · Req: FR-015*
-- [ ] **68.** Write `test_checkpoint.py` covering checkpoint persistence, resume and the no-duplicate
+- [x] **68.** Write `test_checkpoint.py` covering checkpoint persistence, resume and the no-duplicate
   guarantee under `upsert`. — *Plan: H2 · Req: FR-015, NFR-005*

@@ -107,6 +107,9 @@ DEFAULT_ON_DUPLICATE = "discard"
 #: Arquivo padrão do relatório de rejeições (FR-006).
 DEFAULT_REJECTION_REPORT = "rejeicoes.csv"
 
+#: Arquivo padrão para o ponto de controle (FR-015).
+DEFAULT_CHECKPOINT_FILE = "checkpoint.json"
+
 #: Prefixo das variáveis de ambiente reconhecidas (FR-011).
 ENV_PREFIX = "ETL_"
 
@@ -145,6 +148,7 @@ ENV_OVERRIDES = {
     "ETL_LOG_LEVEL": "run.log_level",
     "ETL_LOG_FILE": "run.log_file",
     "ETL_REJECTION_REPORT": "run.rejection_report",
+    "ETL_CHECKPOINT_FILE": "run.checkpoint_file",
     "ETL_DRY_RUN": "run.dry_run",
     "ETL_RESUME": "run.resume",
 }
@@ -231,6 +235,7 @@ class RunConfig:
     log_level: str = logging_setup.DEFAULT_LOG_LEVEL
     log_file: str | None = None
     rejection_report: str = DEFAULT_REJECTION_REPORT
+    checkpoint_file: str = DEFAULT_CHECKPOINT_FILE
     dry_run: bool = False
     resume: bool = False
 
@@ -723,7 +728,14 @@ def _parse_load(reader: _Reader) -> LoadConfig:
 def _parse_run(reader: _Reader) -> RunConfig:
     """Valida a seção ``run`` (FR-012 a FR-014)."""
     reader.check_unknown_keys(
-        ("log_level", "log_file", "rejection_report", "dry_run", "resume")
+        (
+            "log_level",
+            "log_file",
+            "rejection_report",
+            "checkpoint_file",
+            "dry_run",
+            "resume",
+        )
     )
     log_level = reader.string("log_level", default=logging_setup.DEFAULT_LOG_LEVEL)
     # Falha aqui, e não na configuração do log, para manter a validação única.
@@ -733,6 +745,9 @@ def _parse_run(reader: _Reader) -> RunConfig:
         log_file=reader.string("log_file"),
         rejection_report=reader.string(
             "rejection_report", default=DEFAULT_REJECTION_REPORT
+        ),
+        checkpoint_file=reader.string(
+            "checkpoint_file", default=DEFAULT_CHECKPOINT_FILE
         ),
         dry_run=reader.boolean("dry_run"),
         resume=reader.boolean("resume"),

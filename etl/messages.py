@@ -208,6 +208,7 @@ CLI_NOT_IMPLEMENTED = (
 # --------------------------------------------------------------------------
 
 INFO_RUN_STARTED = "Início da execução: planilha '{source}' -> tabela '{table}'."
+INFO_RESUMING = "Retomando a execução a partir da linha {row}."
 INFO_RUN_FINISHED = "Execução finalizada."
 INFO_DRY_RUN = (
     "Modo simulação ativado: nenhum dado será gravado no banco de dados."

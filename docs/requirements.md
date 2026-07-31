@@ -43,7 +43,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the first row is a header row THEN the system SHALL use it to derive column names.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-002 — Streaming / chunked reading of large files
 
@@ -58,7 +58,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN no chunk size is configured THEN the system SHALL apply a documented default chunk size.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-003 — Column mapping to the target schema
 
@@ -73,7 +73,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a source column is not present in the mapping THEN the system SHALL ignore that column.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-004 — Data cleaning and normalization
 
@@ -88,7 +88,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a normalization rule (e.g. uppercase, strip punctuation) is configured for a column THEN the system SHALL apply it to that column only.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-005 — Type conversion
 
@@ -103,7 +103,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a date is stored as an Excel serial number THEN the system SHALL convert it to a proper date value.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-006 — Row validation and rejection handling
 
@@ -118,7 +118,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the number of rejected rows exceeds a configured threshold THEN the system SHALL abort the run and report the threshold breach.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-007 — Deduplication
 
@@ -131,7 +131,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN no business key is configured THEN the system SHALL load all valid rows unchanged.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-008 — MySQL connection management
 
@@ -146,7 +146,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the connection drops mid-run THEN the system SHALL retry a configurable number of times with backoff before failing.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-009 — Batch loading into MySQL
 
@@ -160,7 +160,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a batch insert fails THEN the system SHALL roll back that batch, report the failure, and either retry row-by-row to isolate the offending row or abort, according to configuration.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-010 — Target table preparation and load mode
 
@@ -175,7 +175,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the target table does not exist THEN the system SHALL abort with a `pt_BR` error naming the missing table.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-011 — Configuration
 
@@ -190,7 +190,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a required configuration key is missing or invalid THEN the system SHALL abort before any database write and report which key is wrong in `pt_BR`.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-012 — Command-line interface
 
@@ -205,7 +205,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the run completes successfully THEN the system SHALL exit with code `0`, otherwise with a non-zero code.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-013 — Logging
 
@@ -220,7 +220,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN credentials are part of the configuration THEN the system SHALL never write them to the logs.
 
 - **Priority**: High
-- **Status**: In Progress
+- **Status**: Completed
 
 ### FR-014 — Progress reporting and run summary
 
@@ -234,7 +234,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the run ends THEN the system SHALL print a summary with total rows read, loaded, rejected and total elapsed time, in `pt_BR`.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: Completed
 
 ### FR-015 — Restartability / idempotency
 
@@ -248,7 +248,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the same file is fully reloaded in `upsert` mode THEN the system SHALL not create duplicate rows.
 
 - **Priority**: Low
-- **Status**: Deferred
+- **Status**: Completed
 
 ---
 
@@ -265,7 +265,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a file of any supported size is processed THEN the system SHALL keep resident memory proportional to the chunk size and not to the total row count.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### NFR-002 — Throughput
 
@@ -278,7 +278,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN batch size is increased within configured limits THEN the system SHALL not degrade throughput.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: Completed
 
 ### NFR-003 — Reliability and data integrity
 
@@ -291,7 +291,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the pipeline reports N rows loaded THEN the target table SHALL contain exactly N new/updated rows for that run.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: Completed
 
 ### NFR-004 — Security of credentials
 
@@ -305,7 +305,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN SQL is executed THEN the system SHALL use parameterized statements only, never string interpolation of data values.
 
 - **Priority**: High
-- **Status**: In Progress
+- **Status**: Completed
 
 ### NFR-005 — Testability and test coverage
 
@@ -319,7 +319,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN unit tests run THEN they SHALL not require a live MySQL server, using fakes/mocks instead.
 
 - **Priority**: High
-- **Status**: In Progress
+- **Status**: Completed
 
 ### NFR-006 — Maintainability and code style
 
@@ -333,7 +333,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a public function or class is added THEN it SHALL carry a docstring.
 
 - **Priority**: High
-- **Status**: In Progress
+- **Status**: Completed
 
 ### NFR-007 — Internationalization of messages
 
@@ -347,7 +347,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a message is defined THEN it SHALL live in a central message catalogue rather than being scattered as inline literals.
 
 - **Priority**: Medium
-- **Status**: In Progress
+- **Status**: Completed
 
 ### NFR-008 — Portability and dependencies
 
@@ -360,7 +360,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the application is started THEN it SHALL run on Python 3 via `python3 main.py` with no build step.
 
 - **Priority**: Medium
-- **Status**: In Progress
+- **Status**: Completed
 
 ### NFR-009 — Observability of failures
 
@@ -372,7 +372,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a row is rejected or a batch fails THEN the system SHALL report the originating sheet name and source row number.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: Completed
 
 ### NFR-010 — Documentation
 
@@ -384,7 +384,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a requirement, plan item or task changes THEN `docs/requirements.md`, `docs/plan.md` and `docs/tasks.md` SHALL be updated in the same change.
 
 - **Priority**: Medium
-- **Status**: In Progress
+- **Status**: Completed
 
 ---
 
@@ -392,28 +392,28 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 
 | ID      | Title                                  | Priority | Status      |
 |---------|----------------------------------------|----------|-------------|
-| FR-001  | Excel file extraction                  | High     | Not Started |
-| FR-002  | Streaming / chunked reading            | High     | Not Started |
-| FR-003  | Column mapping                         | High     | Not Started |
-| FR-004  | Data cleaning and normalization        | High     | Not Started |
-| FR-005  | Type conversion                        | High     | Not Started |
-| FR-006  | Row validation and rejection handling  | High     | Not Started |
-| FR-007  | Deduplication                          | Medium   | Not Started |
-| FR-008  | MySQL connection management            | High     | Not Started |
-| FR-009  | Batch loading into MySQL               | High     | Not Started |
-| FR-010  | Target table preparation and load mode | Medium   | Not Started |
-| FR-011  | Configuration                          | High     | Not Started |
-| FR-012  | Command-line interface                 | High     | Not Started |
-| FR-013  | Logging                                | High     | In Progress |
-| FR-014  | Progress reporting and run summary     | Medium   | Not Started |
-| FR-015  | Restartability / idempotency           | Low      | Deferred    |
-| NFR-001 | Memory efficiency                      | High     | Not Started |
-| NFR-002 | Throughput                             | Medium   | Not Started |
-| NFR-003 | Reliability and data integrity         | High     | Not Started |
-| NFR-004 | Security of credentials                | High     | In Progress |
-| NFR-005 | Testability and test coverage          | High     | In Progress |
-| NFR-006 | Maintainability and code style         | High     | In Progress |
-| NFR-007 | Internationalization of messages       | Medium   | In Progress |
-| NFR-008 | Portability and dependencies           | Medium   | In Progress |
-| NFR-009 | Observability of failures              | Medium   | Not Started |
-| NFR-010 | Documentation                          | Medium   | In Progress |
+| FR-001  | Excel file extraction                  | High     | Completed   |
+| FR-002  | Streaming / chunked reading            | High     | Completed   |
+| FR-003  | Column mapping                         | High     | Completed   |
+| FR-004  | Data cleaning and normalization        | High     | Completed   |
+| FR-005  | Type conversion                        | High     | Completed   |
+| FR-006  | Row validation and rejection handling  | High     | Completed   |
+| FR-007  | Deduplication                          | Medium   | Completed   |
+| FR-008  | MySQL connection management            | High     | Completed   |
+| FR-009  | Batch loading into MySQL               | High     | Completed   |
+| FR-010  | Target table preparation and load mode | Medium   | Completed   |
+| FR-011  | Configuration                          | High     | Completed   |
+| FR-012  | Command-line interface                 | High     | Completed   |
+| FR-013  | Logging                                | High     | Completed   |
+| FR-014  | Progress reporting and run summary     | Medium   | Completed   |
+| FR-015  | Restartability / idempotency           | Low      | Completed   |
+| NFR-001 | Memory efficiency                      | High     | Completed   |
+| NFR-002 | Throughput                             | Medium   | Completed   |
+| NFR-003 | Reliability and data integrity         | High     | Completed   |
+| NFR-004 | Security of credentials                | High     | Completed   |
+| NFR-005 | Testability and test coverage          | High     | Completed   |
+| NFR-006 | Maintainability and code style         | High     | Completed   |
+| NFR-007 | Internationalization of messages       | Medium   | Completed   |
+| NFR-008 | Portability and dependencies           | Medium   | Completed   |
+| NFR-009 | Observability of failures              | Medium   | Completed   |
+| NFR-010 | Documentation                          | Medium   | Completed   |

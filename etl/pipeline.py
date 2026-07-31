@@ -12,6 +12,7 @@ import logging
 from typing import Any
 
 from etl import messages
+from etl.checkpoint import delete_checkpoint, load_checkpoint, save_checkpoint
 from etl.config import EtlConfig
 from etl.errors import EtlError, RejectionThresholdExceeded
 from etl.extract import open_source, iter_chunks
@@ -64,6 +65,12 @@ class Pipeline:
 
             logger.info(messages.INFO_LOAD_MODE.format(mode=self.config.load.mode))
 
+            last_row = None
+            if self.config.run.resume:
+                last_row = load_checkpoint(self.config.run.checkpoint_file)
+                if last_row:
+                    logger.info(messages.INFO_RESUMING.format(row=last_row))
+
             # 1. Abertura da origem e verificação do mapeamento
             with open_source(self.config.source) as sheet:
                 check_mapping(sheet.columns, self.config.mapping, sheet.sheet)
@@ -86,6 +93,9 @@ class Pipeline:
                     batch_data: list[tuple[int, dict[str, Any]]] = []
 
                     for row in chunk:
+                        if last_row and row.number <= last_row:
+                            continue
+
                         self.stats.read += 1
 
                         # Pipeline de transformação
@@ -125,17 +135,23 @@ class Pipeline:
                         batch_data.append((row.number, outcome))
 
                     # 4. Carga do lote (Task 38)
+                    def save_cb(row_num: int) -> None:
+                        save_checkpoint(self.config.run.checkpoint_file, row_num)
+
                     if loader and batch_data:
-                        loaded, failed = loader.load_batch(batch_data)
+                        loaded, failed = loader.load_batch(batch_data, on_success=save_cb)
                         self.stats.loaded += loaded
                         self.stats.rejected += failed
                     elif batch_data:
                         # Dry-run: apenas conta como carregado (Task 50)
                         self.stats.loaded += len(batch_data)
+                        # No dry-run, salvamos o ponto ao final do bloco
+                        save_cb(batch_data[-1][0])
 
                     print_progress(self.stats)
 
             success = True
+            delete_checkpoint(self.config.run.checkpoint_file)
             logger.info(messages.INFO_RUN_FINISHED)
 
         except EtlError:
