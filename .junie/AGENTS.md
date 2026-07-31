@@ -1,10 +1,19 @@
 # Project Development Guide
 
 ## 1. Build/Configuration Instructions
-This is a standard Python project. No complex build process is required. Ensure you have Python 3 installed. You can run the application directly:
+This is a standard Python project. No complex build process is required. Ensure you have Python 3 installed.
+
+Third-party dependencies (`openpyxl`, `mysql-connector-python`, `xlrd`) are declared in `requirements.txt`
+and installed in the project virtual environment:
 
 ```bash
-python3 main.py
+.venv/bin/python -m pip install -r requirements.txt
+```
+
+You can then run the application directly:
+
+```bash
+.venv/bin/python main.py
 ```
 
 ## 2. Testing Information
@@ -14,8 +23,12 @@ The project uses the built-in `unittest` framework.
 To run all tests in the project, use the following command from the root directory:
 
 ```bash
-python3 -m unittest discover
+.venv/bin/python -m unittest discover
 ```
+
+Use the virtual environment's interpreter: tests that need `openpyxl` or `xlrd` are **skipped**, not failed,
+when the dependency is missing, so a bare `python3 -m unittest discover` reports a green run while silently
+skipping the spreadsheet tests.
 
 ### Adding New Tests
 When adding new features, create a corresponding test file named `test_<feature>.py` in the root directory. Use the `unittest` library to define your test cases.

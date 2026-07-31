@@ -1,0 +1,11 @@
+# Dependências do pipeline ETL (NFR-008).
+# Instalação: python3 -m pip install -r requirements.txt
+
+# Leitura em streaming de planilhas .xlsx (FR-001, FR-002, NFR-001).
+openpyxl>=3.1,<4.0
+
+# Driver MySQL usado pela camada de carga (FR-008, FR-009).
+mysql-connector-python>=9.0,<10.0
+
+# Leitura de planilhas legadas .xls (FR-001, tarefa 21 de docs/tasks.md).
+xlrd>=2.0,<3.0

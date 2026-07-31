@@ -220,7 +220,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN credentials are part of the configuration THEN the system SHALL never write them to the logs.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### FR-014 — Progress reporting and run summary
 
@@ -305,7 +305,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN SQL is executed THEN the system SHALL use parameterized statements only, never string interpolation of data values.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### NFR-005 — Testability and test coverage
 
@@ -319,7 +319,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN unit tests run THEN they SHALL not require a live MySQL server, using fakes/mocks instead.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### NFR-006 — Maintainability and code style
 
@@ -333,7 +333,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a public function or class is added THEN it SHALL carry a docstring.
 
 - **Priority**: High
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### NFR-007 — Internationalization of messages
 
@@ -347,7 +347,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN a message is defined THEN it SHALL live in a central message catalogue rather than being scattered as inline literals.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### NFR-008 — Portability and dependencies
 
@@ -360,7 +360,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 > WHEN the application is started THEN it SHALL run on Python 3 via `python3 main.py` with no build step.
 
 - **Priority**: Medium
-- **Status**: Not Started
+- **Status**: In Progress
 
 ### NFR-009 — Observability of failures
 
@@ -404,16 +404,16 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 | FR-010  | Target table preparation and load mode | Medium   | Not Started |
 | FR-011  | Configuration                          | High     | Not Started |
 | FR-012  | Command-line interface                 | High     | Not Started |
-| FR-013  | Logging                                | High     | Not Started |
+| FR-013  | Logging                                | High     | In Progress |
 | FR-014  | Progress reporting and run summary     | Medium   | Not Started |
 | FR-015  | Restartability / idempotency           | Low      | Deferred    |
 | NFR-001 | Memory efficiency                      | High     | Not Started |
 | NFR-002 | Throughput                             | Medium   | Not Started |
 | NFR-003 | Reliability and data integrity         | High     | Not Started |
-| NFR-004 | Security of credentials                | High     | Not Started |
-| NFR-005 | Testability and test coverage          | High     | Not Started |
-| NFR-006 | Maintainability and code style         | High     | Not Started |
-| NFR-007 | Internationalization of messages       | Medium   | Not Started |
-| NFR-008 | Portability and dependencies           | Medium   | Not Started |
+| NFR-004 | Security of credentials                | High     | In Progress |
+| NFR-005 | Testability and test coverage          | High     | In Progress |
+| NFR-006 | Maintainability and code style         | High     | In Progress |
+| NFR-007 | Internationalization of messages       | Medium   | In Progress |
+| NFR-008 | Portability and dependencies           | Medium   | In Progress |
 | NFR-009 | Observability of failures              | Medium   | Not Started |
 | NFR-010 | Documentation                          | Medium   | In Progress |

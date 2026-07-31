@@ -75,8 +75,9 @@ summary). Technical tokens stay English.
 
 ### A4. Exception hierarchy (`etl/errors.py`)
 Define `EtlError` and subclasses: `ConfigError`, `ExtractionError`, `MappingError`, `ValidationError`,
-`RejectionThresholdExceeded`, `ConnectionError`, `LoadError`. Each carries a `pt_BR` message and a stable
-exit-code hint.
+`RejectionThresholdExceeded`, `DatabaseConnectionError`, `LoadError`. Each carries a `pt_BR` message and a
+stable exit-code hint. The database error is named `DatabaseConnectionError` rather than `ConnectionError`
+so it does not shadow the Python builtin of that name (PEP 8, NFR-006).
 - **Requirements**: NFR-006, NFR-007, FR-001, FR-006, FR-008, FR-011, FR-012
 - **Priority**: High
 
@@ -188,7 +189,7 @@ according to configuration; no-op when no key is configured.
 ## Group E — Loading
 
 ### E1. Connection factory (`etl/load/connection.py`)
-Build a MySQL connection from `DatabaseConfig`; on failure raise `ConnectionError` with a `pt_BR` message
+Build a MySQL connection from `DatabaseConfig`; on failure raise `DatabaseConnectionError` with a `pt_BR` message
 that never contains the password; expose the connection through a small interface so tests can substitute
 a fake.
 - **Requirements**: FR-008, NFR-004, NFR-005
