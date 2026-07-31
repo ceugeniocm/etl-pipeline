@@ -110,74 +110,73 @@ Mark a task complete by changing `[ ]` to `[x]`.
 
 ## Phase 4 — Transformation
 
-- [ ] **22.** Implement source→target column mapping in `etl/transform/mapping.py`, dropping unmapped columns.
+- [x] **22.** Implement source→target column mapping in `etl/transform/mapping.py`, dropping unmapped columns.
   — *Plan: D1 · Req: FR-003*
-- [ ] **23.** Implement the startup check that every mapped source column exists in the header, raising
+- [x] **23.** Implement the startup check that every mapped source column exists in the header, raising
   `MappingError` listing all missing columns before any load. — *Plan: D1 · Req: FR-003*
-- [ ] **24.** Implement whitespace trimming and empty/whitespace-only → `None` conversion in
+- [x] **24.** Implement whitespace trimming and empty/whitespace-only → `None` conversion in
   `etl/transform/cleaning.py`. — *Plan: D2 · Req: FR-004*
-- [ ] **25.** Implement the per-column normalizer registry (uppercase, lowercase, strip punctuation, collapse
+- [x] **25.** Implement the per-column normalizer registry (uppercase, lowercase, strip punctuation, collapse
   spaces) applied only where configured. — *Plan: D2 · Req: FR-004*
-- [ ] **26.** Implement type coercion for `int`, `Decimal`, `date`, `datetime`, `bool` and `str` in
+- [x] **26.** Implement type coercion for `int`, `Decimal`, `date`, `datetime`, `bool` and `str` in
   `etl/transform/types.py`. — *Plan: D3 · Req: FR-005*
-- [ ] **27.** Implement Excel serial-number → date/datetime conversion and locale-aware decimal separators.
+- [x] **27.** Implement Excel serial-number → date/datetime conversion and locale-aware decimal separators.
   — *Plan: D3 · Req: FR-005*
-- [ ] **28.** Make conversion failures return a typed failure result instead of raising, so the run continues.
+- [x] **28.** Make conversion failures return a typed failure result instead of raising, so the run continues.
   — *Plan: D3, D4 · Req: FR-005, FR-006*
-- [ ] **29.** Implement the validation engine in `etl/transform/validation.py` (required fields, ranges,
+- [x] **29.** Implement the validation engine in `etl/transform/validation.py` (required fields, ranges,
   lengths, conversion outcomes) producing a clean record or a `Rejection`. — *Plan: D4 · Req: FR-006*
-- [ ] **30.** Define the `Rejection` record with sheet name, source row number, column and `pt_BR` reason.
+- [x] **30.** Define the `Rejection` record with sheet name, source row number, column and `pt_BR` reason.
   — *Plan: D4 · Req: FR-006, NFR-009*
-- [ ] **31.** Implement the rejection threshold counter aborting the run with `RejectionThresholdExceeded`
+- [x] **31.** Implement the rejection threshold counter aborting the run with `RejectionThresholdExceeded`
   when the configured absolute/percentage limit is crossed. — *Plan: D5 · Req: FR-006*
-- [ ] **32.** Implement business-key deduplication in `etl/transform/dedup.py` with a memory-bounded seen-key
+- [x] **32.** Implement business-key deduplication in `etl/transform/dedup.py` with a memory-bounded seen-key
   set, and a no-op path when no key is configured. — *Plan: D6 · Req: FR-007, NFR-001*
-- [ ] **33.** Write `test_mapping.py`, `test_cleaning.py`, `test_types.py`, `test_validation.py` and
+- [x] **33.** Write `test_mapping.py`, `test_cleaning.py`, `test_types.py`, `test_validation.py` and
   `test_dedup.py` covering happy paths and every rejection reason. — *Plan: H2 · Req: FR-003…FR-007, NFR-005*
 
 ## Phase 5 — Loading
 
-- [ ] **34.** Implement the MySQL connection factory in `etl/load/connection.py` behind a small interface that
+- [x] **34.** Implement the MySQL connection factory in `etl/load/connection.py` behind a small interface that
   tests can substitute. — *Plan: E1 · Req: FR-008, NFR-005*
-- [ ] **35.** Ensure connection failures raise `ConnectionError` with a `pt_BR` message that never contains
+- [x] **35.** Ensure connection failures raise `ConnectionError` with a `pt_BR` message that never contains
   the password. — *Plan: E1 · Req: FR-008, NFR-004*
-- [ ] **36.** Implement configurable retry with exponential backoff for initial connection and mid-run
+- [x] **36.** Implement configurable retry with exponential backoff for initial connection and mid-run
   reconnection. — *Plan: E2 · Req: FR-008, NFR-003*
-- [ ] **37.** Implement pre-flight checks that the target table and all mapped target columns exist, aborting
+- [x] **37.** Implement pre-flight checks that the target table and all mapped target columns exist, aborting
   with a `pt_BR` message naming what is missing. — *Plan: E3 · Req: FR-010, FR-003*
-- [ ] **38.** Implement the batch inserter in `etl/load/loader.py` using parameterized `executemany` /
+- [x] **38.** Implement the batch inserter in `etl/load/loader.py` using parameterized `executemany` /
   multi-row `INSERT` with the configured batch size. — *Plan: E4 · Req: FR-009, NFR-002, NFR-004*
-- [ ] **39.** Commit after each successfully inserted batch. — *Plan: E4 · Req: FR-009, NFR-003*
-- [ ] **40.** Implement batch failure handling: rollback, then row-by-row isolation of the offending row or
+- [x] **39.** Commit after each successfully inserted batch. — *Plan: E4 · Req: FR-009, NFR-003*
+- [x] **40.** Implement batch failure handling: rollback, then row-by-row isolation of the offending row or
   abort, per configuration. — *Plan: E5 · Req: FR-009, FR-006, NFR-003*
-- [ ] **41.** Implement load mode `append`. — *Plan: E6 · Req: FR-010*
-- [ ] **42.** Implement load mode `truncate` (empty the target before inserting). — *Plan: E6 · Req: FR-010*
-- [ ] **43.** Implement load mode `upsert` via `INSERT ... ON DUPLICATE KEY UPDATE` on the declared unique key.
+- [x] **41.** Implement load mode `append`. — *Plan: E6 · Req: FR-010*
+- [x] **42.** Implement load mode `truncate` (empty the target before inserting). — *Plan: E6 · Req: FR-010*
+- [x] **43.** Implement load mode `upsert` via `INSERT ... ON DUPLICATE KEY UPDATE` on the declared unique key.
   — *Plan: E6 · Req: FR-010, FR-015*
-- [ ] **44.** Build the fake connection/cursor test double recording executed statements and parameters.
+- [x] **44.** Build the fake connection/cursor test double recording executed statements and parameters.
   — *Plan: H1 · Req: NFR-005*
-- [ ] **45.** Write `test_connection.py` and `test_loader.py` covering retries, pre-flight checks, batching,
+- [x] **45.** Write `test_connection.py` and `test_loader.py` covering retries, pre-flight checks, batching,
   commit/rollback and all three load modes. — *Plan: H2 · Req: FR-008…FR-010, NFR-003, NFR-005*
 
 ## Phase 6 — Orchestration, CLI and Reporting
 
-- [ ] **46.** Implement `etl/pipeline.py` wiring extract → chunk → map → clean → coerce → validate → dedup →
-  load as a lazy iterator chain. — *Plan: F1 · Req: FR-001…FR-010, NFR-001*
-- [ ] **47.** Implement run lifecycle handling in the pipeline: counters, error propagation, connection
+- [x] **46.** Implement `etl/pipeline.py` wiring extract → chunk → map → clean → coerce → validate → dedup → load as a lazy iterator chain. — *Plan: F1 · Req: FR-001…FR-010, NFR-001*
+- [x] **47.** Implement run lifecycle handling in the pipeline: counters, error propagation, connection
   teardown. — *Plan: F1 · Req: NFR-003, FR-014*
-- [ ] **48.** Implement the `argparse` CLI in `etl/cli.py` with the config path and overrides (source file,
+- [x] **48.** Implement the `argparse` CLI in `etl/cli.py` with the config path and overrides (source file,
   table, chunk/batch size, log level, `--verbose`) and `pt_BR` help text. — *Plan: F2 · Req: FR-012, FR-011*
-- [ ] **49.** Define and implement the exit codes: `0` on success and a distinct non-zero code per failure
+- [x] **49.** Define and implement the exit codes: `0` on success and a distinct non-zero code per failure
   class. — *Plan: F2 · Req: FR-012*
-- [ ] **50.** Implement `--dry-run`, replacing the loader with a counting no-op while still producing the
+- [x] **50.** Implement `--dry-run`, replacing the loader with a counting no-op while still producing the
   rejection report and summary. — *Plan: F3 · Req: FR-012, FR-006*
-- [ ] **51.** Implement the counters and per-chunk progress line in `etl/reporting.py` (read / transformed /
+- [x] **51.** Implement the counters and per-chunk progress line in `etl/reporting.py` (read / transformed /
   loaded / rejected). — *Plan: F4 · Req: FR-014, FR-013*
-- [ ] **52.** Implement the end-of-run `pt_BR` summary with totals and elapsed time, printed on success and on
+- [x] **52.** Implement the end-of-run `pt_BR` summary with totals and elapsed time, printed on success and on
   failure. — *Plan: F5 · Req: FR-014, NFR-007*
-- [ ] **53.** Implement the CSV rejection-report writer (sheet, source row, column, reason) to the configured
+- [x] **53.** Implement the CSV rejection-report writer (sheet, source row, column, reason) to the configured
   path. — *Plan: F6 · Req: FR-006, NFR-009*
-- [ ] **54.** Write `test_cli.py` and `test_reporting.py` covering argument parsing, exit codes, dry-run,
+- [x] **54.** Write `test_cli.py` and `test_reporting.py` covering argument parsing, exit codes, dry-run,
   progress output and report contents. — *Plan: H2 · Req: FR-012, FR-014, NFR-005*
 
 ## Phase 7 — Testing and Quality Assurance
