@@ -1,0 +1,75 @@
+{
+  "source": {
+    "path": "agendaAnonimizado.xlsx",
+    "sheet": "AGENDA_1",
+    "header_row": 1,
+    "chunk_size": 5000
+  },
+  "mapping": {
+    "columns": {
+      "AGM_ID": "id_agendamento",
+      "BENEF_NOME": "paciente_nome",
+      "DTHORAAGENDA": "data_hora",
+      "AGP_VALOR": "valor",
+      "AG_STATUSAGENDAMENTO": "status"
+    },
+    "types": {
+      "id_agendamento": "int",
+      "paciente_nome": "str",
+      "data_hora": "datetime",
+      "valor": "decimal",
+      "status": "str"
+    },
+    "normalizers": {
+      "paciente_nome": [
+        "trim",
+        "upper"
+      ]
+    }
+  },
+  "validation": {
+    "required": [
+      "id_agendamento",
+      "paciente_nome"
+    ],
+    "ranges": {
+      "valor": {
+        "minimum": 0
+      }
+    },
+    "max_lengths": {
+      "paciente_nome": 255
+    },
+    "rejection_threshold": "10%",
+    "business_key": [
+      "id_agendamento"
+    ],
+    "on_duplicate": "discard"
+  },
+  "database": {
+    "host": "localhost",
+    "port": 3306,
+    "database": "meu_banco",
+    "user": "usuario_etl",
+    "password": "senha_segura",
+    "connect_retries": 3,
+    "retry_backoff_seconds": 1.0
+  },
+  "load": {
+    "table": "tabela_destino",
+    "mode": "upsert",
+    "batch_size": 1000,
+    "unique_key": [
+      "id_agendamento"
+    ],
+    "on_batch_error": "isolate"
+  },
+  "run": {
+    "log_level": "INFO",
+    "log_file": "etl.log",
+    "rejection_report": "rejeicoes.csv",
+    "checkpoint_file": "checkpoint.json",
+    "dry_run": false,
+    "resume": false
+  }
+}

@@ -1,0 +1,10 @@
+2026-07-31 20:25:43 [INFO] etl.pipeline: Início da execução: planilha 'agendaAnonimizado.xlsx' -> tabela 'agenda'.
+2026-07-31 20:25:43 [INFO] etl.pipeline: Modo de carga: upsert.
+2026-07-31 20:25:44 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 1 de 3 em 1.0s.
+2026-07-31 20:25:45 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 2 de 3 em 2.0s.
+2026-07-31 20:25:47 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 3 de 3 em 4.0s.
+2026-07-31 20:26:48 [INFO] etl.pipeline: Início da execução: planilha 'agendaAnonimizado.xlsx' -> tabela 'tabela_destino'.
+2026-07-31 20:26:48 [INFO] etl.pipeline: Modo de carga: upsert.
+2026-07-31 20:26:49 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 1 de 3 em 1.0s.
+2026-07-31 20:26:50 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 2 de 3 em 2.0s.
+2026-07-31 20:26:52 [WARNING] etl.load.connection: Falha na conexão com o banco de dados. Nova tentativa 3 de 3 em 4.0s.
