@@ -1,14 +1,14 @@
 {
   "columns": {
     "TIPOAGENDA": "tipoagenda",
-    "AGM_ID": "id_agendamento",
+    "AG_ID": "id_agendamento",
+    "AGM_ID": "agm_id",
     "AG_PENDENTE": "ag_pendente",
     "AG_DTHORAAGENDA": "ag_dthoraagenda",
     "DTHORAAGENDA": "data_hora",
     "DATA": "data",
     "ATD": "atd",
     "FIM_ATD": "fim_atd",
-    "AG_ID": "ag_id",
     "TPA_ID": "tpa_id",
     "AG_STATUSAGENDAMENTO": "status",
     "AG_TIPOAGENDAMENTO": "ag_tipoagendamento",
@@ -109,7 +109,6 @@
     "data": "datetime",
     "atd": "str",
     "fim_atd": "str",
-    "ag_id": "int",
     "tpa_id": "int",
     "status": "str",
     "ag_tipoagendamento": "str",
@@ -200,5 +199,11 @@
     "conv_ans": "str",
     "plano_corporativo": "int",
     "plano_descricao": "str"
+  },
+  "normalizers": {
+    "paciente_nome": [
+      "trim",
+      "upper"
+    ]
   }
 }

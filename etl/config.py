@@ -908,4 +908,35 @@ def load_config(
             cause=error,
         ) from error
 
+    if isinstance(raw, Mapping):
+        # Se a seção 'mapping' for uma string, carregamos o mapeamento do arquivo
+        # indicado (FR-011, eliminando redundância entre config.json e full_mapping.json).
+        mapping_ref = raw.get("mapping")
+        if isinstance(mapping_ref, str):
+            mapping_path = os.path.join(
+                os.path.dirname(os.path.abspath(path)), mapping_ref
+            )
+            try:
+                with open(mapping_path, encoding="utf-8") as m_handle:
+                    raw["mapping"] = json.load(m_handle)
+            except FileNotFoundError as error:
+                raise ConfigError(
+                    messages.ERR_CONFIG_FILE_NOT_FOUND.format(path=mapping_path),
+                    cause=error,
+                ) from error
+            except json.JSONDecodeError as error:
+                raise ConfigError(
+                    messages.ERR_CONFIG_INVALID_FORMAT.format(
+                        path=mapping_path, reason=error.msg
+                    ),
+                    cause=error,
+                ) from error
+            except OSError as error:
+                raise ConfigError(
+                    messages.ERR_CONFIG_FILE_UNREADABLE.format(
+                        path=mapping_path, reason=error.strerror or str(error)
+                    ),
+                    cause=error,
+                ) from error
+
     return parse_config(raw, env=env, overrides=overrides)
