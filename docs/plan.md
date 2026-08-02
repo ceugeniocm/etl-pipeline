@@ -1,360 +1,360 @@
-# Implementation Plan
+# Plano de Implementação
 
-## Introduction
+## Introdução
 
-This plan translates `docs/requirements.md` into an ordered, grouped set of implementation items for the
-Big Data ETL pipeline (Excel → transform → MySQL). Every item is explicitly linked to the requirement(s)
-it satisfies and carries a priority.
+Este plano traduz `docs/requirements.md` em um conjunto ordenado e agrupado de itens de implementação para o
+pipeline de ETL de Big Data (Excel → transformação → MySQL). Cada item está explicitamente vinculado aos requisitos
+que satisfaz e possui uma prioridade.
 
-Guiding decisions:
+Decisões norteadoras:
 
-- **Language/runtime**: Python 3, no build step, entry point `python3 main.py` (NFR-008).
-- **Package layout**: a single `etl/` package with one module per concern, keeping extract, transform,
-  load, config, messages and CLI separate (NFR-006).
-- **Extraction library**: `openpyxl` in `read_only=True` streaming mode for `.xlsx`; `pandas` is avoided
-  as the primary reader because it materializes whole sheets (NFR-001).
-- **Database driver**: `mysql-connector-python` (or `PyMySQL`) accessed only through a thin adapter, so the
-  driver choice stays swappable and unit tests can inject a fake (NFR-005).
-- **Streaming contract**: extraction yields an iterator of chunks; every stage consumes and produces
-  iterators, so memory stays proportional to chunk size (NFR-001).
-- **Messages**: all user-facing text lives in `etl/messages.py` as `pt_BR` constants; technical strings stay
-  in English (NFR-007).
-- **Tests**: `unittest`, files `test_<feature>.py` at the project root, no live MySQL needed (NFR-005).
+- **Linguagem/runtime**: Python 3, sem etapa de build, ponto de entrada `python3 main.py` (NFR-008).
+- **Layout do pacote**: um único pacote `etl/` com um módulo por preocupação, mantendo extração, transformação,
+  carga, config, mensagens e CLI separados (NFR-006).
+- **Biblioteca de extração**: `openpyxl` no modo streaming `read_only=True` para `.xlsx`; `pandas` é evitado
+  como leitor principal porque materializa planilhas inteiras (NFR-001).
+- **Driver de banco de dados**: `mysql-connector-python` (ou `PyMySQL`) acessado apenas através de um adaptador fino, para que a
+  escolha do driver permaneça substituível e os testes unitários possam injetar um fake (NFR-005).
+- **Contrato de streaming**: a extração gera um iterador de blocos; cada etapa consome e produz
+  iteradores, para que a memória permaneça proporcional ao tamanho do bloco (NFR-001).
+- **Mensagens**: todo o texto voltado para o usuário vive em `etl/messages.py` como constantes `pt_BR`; strings técnicas permanecem
+  em inglês (NFR-007).
+- **Testes**: `unittest`, arquivos `test_<funcionalidade>.py` na raiz do projeto, sem necessidade de MySQL ativo (NFR-005).
 
-### Target module layout
+### Layout de módulos planejado
 
 ```
-main.py                     # thin CLI bootstrap -> etl.cli
+main.py                     # bootstrap CLI fino -> etl.cli
 requirements.txt
 etl/
     __init__.py
-    messages.py             # pt_BR message catalogue
-    errors.py               # exception hierarchy
-    config.py               # config loading, env overrides, validation
-    logging_setup.py        # logging configuration + credential redaction
-    extract.py              # streaming Excel reader
+    messages.py             # catálogo de mensagens pt_BR
+    errors.py               # hierarquia de exceções
+    config.py               # carregamento de config, substituições de env, validação
+    logging_setup.py        # configuração de log + redação de credenciais
+    extract.py              # leitor de Excel em streaming
     transform/
         __init__.py
-        mapping.py          # source -> target column mapping
-        cleaning.py         # trim, empty -> NULL, per-column normalizers
-        types.py            # type coercion (int, decimal, date, datetime, bool)
-        validation.py       # rule evaluation, rejection records
-        dedup.py            # business-key deduplication
+        mapping.py          # mapeamento de colunas origem -> destino
+        cleaning.py         # trim, vazio -> NULL, normalizadores por coluna
+        types.py            # coerção de tipos (int, decimal, date, datetime, bool)
+        validation.py       # avaliação de regras, registros de rejeição
+        dedup.py            # deduplicação por chave de negócio
     load/
         __init__.py
-        connection.py       # connection factory, retry/backoff
-        loader.py           # batching, commit/rollback, load modes
-    pipeline.py             # orchestration extract -> transform -> load
-    reporting.py            # progress counters, run summary, rejection report
-    cli.py                  # argparse, exit codes, --dry-run
-    checkpoint.py           # (deferred) resume support
-test_*.py                   # unittest modules
+        connection.py       # fábrica de conexões, retry/backoff
+        loader.py           # carregamento em lote, commit/rollback, modos de carga
+    pipeline.py             # orquestração extração -> transformação -> carga
+    reporting.py            # contadores de progresso, resumo da execução, relatório de rejeição
+    cli.py                  # argparse, códigos de saída, --dry-run
+    checkpoint.py           # suporte a retomada (resume)
+test_*.py                   # módulos unittest
 ```
 
 ---
 
-## Group A — Project Foundation
+## Grupo A — Fundação do Projeto
 
-### A1. Create package skeleton and entry point
-Create the `etl/` package with the module layout above (empty but importable), and reduce `main.py` to a
-thin bootstrap that delegates to `etl.cli.main()` and propagates its exit code.
-- **Requirements**: NFR-006, NFR-008, FR-012
-- **Priority**: High
+### A1. Criar esqueleto do pacote e ponto de entrada
+Criar o pacote `etl/` com o layout de módulos acima (vazio, mas importável) e reduzir `main.py` a um
+bootstrap fino que delega para `etl.cli.main()` e propaga seu código de saída.
+- **Requisitos**: NFR-006, NFR-008, FR-012
+- **Prioridade**: Alta
 
-### A2. Declare dependencies
-Add `requirements.txt` with the Excel reader and MySQL driver pinned to major versions; document the
-install command in the docs.
-- **Requirements**: NFR-008
-- **Priority**: High
+### A2. Declarar dependências
+Adicionar `requirements.txt` com o leitor de Excel e o driver MySQL fixados em versões principais; documentar o
+comando de instalação na documentação.
+- **Requisitos**: NFR-008
+- **Prioridade**: Alta
 
-### A3. Message catalogue (`etl/messages.py`)
-Centralize every user-facing string as a named `pt_BR` constant/template (errors, CLI help, progress,
-summary). Technical tokens stay English.
-- **Requirements**: NFR-007, and message-related criteria of FR-001, FR-003, FR-006, FR-008, FR-010, FR-011, FR-012, FR-014
-- **Priority**: High
+### A3. Catálogo de mensagens (`etl/messages.py`)
+Centralizar cada string voltada ao usuário como uma constante/template `pt_BR` nomeada (erros, ajuda da CLI, progresso,
+resumo). Tokens técnicos permanecem em inglês.
+- **Requisitos**: NFR-007 e critérios relacionados a mensagens de FR-001, FR-003, FR-006, FR-008, FR-010, FR-011, FR-012, FR-014
+- **Prioridade**: Alta
 
-### A4. Exception hierarchy (`etl/errors.py`)
-Define `EtlError` and subclasses: `ConfigError`, `ExtractionError`, `MappingError`, `ValidationError`,
-`RejectionThresholdExceeded`, `DatabaseConnectionError`, `LoadError`. Each carries a `pt_BR` message and a
-stable exit-code hint. The database error is named `DatabaseConnectionError` rather than `ConnectionError`
-so it does not shadow the Python builtin of that name (PEP 8, NFR-006).
-- **Requirements**: NFR-006, NFR-007, FR-001, FR-006, FR-008, FR-011, FR-012
-- **Priority**: High
+### A4. Hierarquia de exceções (`etl/errors.py`)
+Definir `EtlError` e subclasses: `ConfigError`, `ExtractionError`, `MappingError`, `ValidationError`,
+`RejectionThresholdExceeded`, `DatabaseConnectionError`, `LoadError`. Cada uma carrega uma mensagem `pt_BR` e uma
+dica estável de código de saída. O erro de banco de dados é nomeado `DatabaseConnectionError` em vez de `ConnectionError`
+para não sombrear o built-in do Python com esse nome (PEP 8, NFR-006).
+- **Requisitos**: NFR-006, NFR-007, FR-001, FR-006, FR-008, FR-011, FR-012
+- **Prioridade**: Alta
 
-### A5. Logging setup (`etl/logging_setup.py`)
-Configure the standard `logging` module: console handler, optional file handler, configurable level, and a
-filter/formatter that redacts password-like values from any record.
-- **Requirements**: FR-013, NFR-004
-- **Priority**: High
-
----
-
-## Group B — Configuration
-
-### B1. Configuration model and loader (`etl/config.py`)
-Load a configuration file (INI/JSON/YAML — one format, documented) into typed dataclasses:
-`SourceConfig` (path, sheet, header row, chunk size), `MappingConfig` (column map, declared types,
-normalizers), `ValidationConfig` (required fields, ranges, rejection threshold, business key),
-`DatabaseConfig` (host, port, database, user, password, retries), `LoadConfig` (table, load mode, batch
-size), `RunConfig` (log level, log file, rejection report path, dry-run).
-- **Requirements**: FR-011, FR-002, FR-003, FR-006, FR-007, FR-008, FR-009, FR-010, FR-013
-- **Priority**: High
-
-### B2. Environment-variable overrides
-Apply environment variables (e.g. `ETL_DB_PASSWORD`) on top of file values, with env taking precedence;
-credentials are expected to arrive this way.
-- **Requirements**: FR-011, NFR-004
-- **Priority**: High
-
-### B3. Configuration validation with fail-fast
-Validate presence, types and ranges of every key **before** opening the source file or the database
-connection; raise `ConfigError` naming the offending key in `pt_BR`. Apply documented defaults for chunk
-size and batch size.
-- **Requirements**: FR-011, FR-002, FR-009, NFR-003
-- **Priority**: High
+### A5. Configuração de log (`etl/logging_setup.py`)
+Configurar o módulo `logging` padrão: handler de console, handler de arquivo opcional, nível configurável e um
+filtro/formatador que redige valores semelhantes a senhas de qualquer registro.
+- **Requisitos**: FR-013, NFR-004
+- **Prioridade**: Alta
 
 ---
 
-## Group C — Extraction
+## Grupo B — Configuração
 
-### C1. Streaming workbook reader (`etl/extract.py`)
-Open `.xlsx` via `openpyxl` in `read_only=True` / `data_only=True` mode; select the configured sheet or the
-first one; read the header row to derive column names; yield `Row` objects carrying values plus sheet name
-and source row number.
-- **Requirements**: FR-001, NFR-001, NFR-009
-- **Priority**: High
+### B1. Modelo de configuração e carregador (`etl/config.py`)
+Carregar um arquivo de configuração (INI/JSON/YAML — um formato, documentado) em dataclasses tipadas:
+`SourceConfig` (caminho, planilha, linha de cabeçalho, tamanho do bloco), `MappingConfig` (mapa de colunas, tipos declarados,
+normalizadores), `ValidationConfig` (campos obrigatórios, intervalos, limite de rejeição, chave de negócio),
+`DatabaseConfig` (host, porta, banco de dados, usuário, senha, retentativas), `LoadConfig` (tabela, modo de carga, tamanho do
+lote), `RunConfig` (nível de log, arquivo de log, caminho do relatório de rejeição, dry-run).
+- **Requisitos**: FR-011, FR-002, FR-003, FR-006, FR-007, FR-008, FR-009, FR-010, FR-013
+- **Prioridade**: Alta
 
-### C2. Chunking
-Wrap the row iterator so it yields lists of at most `chunk_size` rows; use the documented default when the
-configuration omits it.
-- **Requirements**: FR-002, NFR-001
-- **Priority**: High
+### B2. Substituições por variáveis de ambiente
+Aplicar variáveis de ambiente (ex: `ETL_DB_PASSWORD`) sobre os valores do arquivo, com o ambiente tendo precedência;
+espera-se que as credenciais cheguem desta forma.
+- **Requisitos**: FR-011, NFR-004
+- **Prioridade**: Alta
 
-### C3. Source error handling
-Detect missing path, unreadable/corrupt workbook, unsupported extension, missing configured sheet and
-empty sheet; raise `ExtractionError` with the `pt_BR` message and a non-zero exit code.
-- **Requirements**: FR-001, NFR-007
-- **Priority**: High
-
-### C4. Legacy `.xls` support
-Add an alternate reader path for legacy `.xls` (e.g. `xlrd`) behind the same iterator interface, or reject
-the format explicitly with a clear message if the dependency is unavailable.
-- **Requirements**: FR-001
-- **Priority**: Low
+### B3. Validação de configuração com fail-fast
+Validar presença, tipos e intervalos de cada chave **antes** de abrir o arquivo de origem ou a conexão com o banco de dados;
+lançar `ConfigError` nomeando a chave ofensiva em `pt_BR`. Aplicar padrões documentados para tamanho de bloco
+e tamanho de lote.
+- **Requisitos**: FR-011, FR-002, FR-009, NFR-003
+- **Prioridade**: Alta
 
 ---
 
-## Group D — Transformation
+## Grupo C — Extração
 
-### D1. Column mapping (`etl/transform/mapping.py`)
-Apply the configured source→target map to each row; drop unmapped source columns; verify at startup (from
-the header row) that every mapped source column exists and raise `MappingError` listing the missing ones
-before any load begins.
-- **Requirements**: FR-003
-- **Priority**: High
+### C1. Leitor de planilha em streaming (`etl/extract.py`)
+Abrir `.xlsx` via `openpyxl` no modo `read_only=True` / `data_only=True`; selecionar a planilha configurada ou a
+primeira; ler a linha de cabeçalho para derivar nomes de colunas; gerar objetos `Row` carregando valores mais o nome da planilha
+e número da linha de origem.
+- **Requisitos**: FR-001, NFR-001, NFR-009
+- **Prioridade**: Alta
 
-### D2. Cleaning and normalization (`etl/transform/cleaning.py`)
-Trim whitespace on text; convert empty/whitespace-only cells to `None`; provide a registry of per-column
-normalizers (uppercase, lowercase, strip punctuation, collapse inner spaces) applied only where configured.
-- **Requirements**: FR-004
-- **Priority**: High
+### C2. Fragmentação (Chunking)
+Envolver o iterador de linhas para que ele gere listas de, no máximo, `chunk_size` linhas; usar o padrão documentado quando a
+configuração o omitir.
+- **Requisitos**: FR-002, NFR-001
+- **Prioridade**: Alta
 
-### D3. Type coercion (`etl/transform/types.py`)
-Convert values to the declared target types — `int`, `Decimal`, `date`, `datetime`, `bool`, `str` —
-including Excel serial-date conversion and locale-aware decimal separators. A failed conversion produces a
-typed conversion failure rather than an exception that kills the run.
-- **Requirements**: FR-005
-- **Priority**: High
+### C3. Tratamento de erros de origem
+Detectar caminho ausente, pasta de trabalho ilegível/corrompida, extensão não suportada, planilha configurada ausente e
+planilha vazia; lançar `ExtractionError` com a mensagem `pt_BR` e um código de saída diferente de zero.
+- **Requisitos**: FR-001, NFR-007
+- **Prioridade**: Alta
 
-### D4. Validation engine (`etl/transform/validation.py`)
-Evaluate required-field, range, length and type-conversion outcomes per row; produce either a clean record
-or a `Rejection(sheet, source_row, column, reason_pt_br)`; keep processing subsequent rows.
-- **Requirements**: FR-006, FR-005, NFR-009
-- **Priority**: High
-
-### D5. Rejection threshold
-Track the rejected-row count across the run and abort with `RejectionThresholdExceeded` once the configured
-absolute/percentage threshold is crossed.
-- **Requirements**: FR-006
-- **Priority**: Medium
-
-### D6. Deduplication (`etl/transform/dedup.py`)
-When a business key is configured, keep a memory-bounded set of seen keys and discard or flag repeats
-according to configuration; no-op when no key is configured.
-- **Requirements**: FR-007, NFR-001
-- **Priority**: Medium
+### C4. Suporte a `.xls` legado
+Adicionar um caminho de leitor alternativo para `.xls` legado (ex: `xlrd`) sob a mesma interface de iterador, ou rejeitar
+o formato explicitamente com uma mensagem clara se a dependência não estiver disponível.
+- **Requisitos**: FR-001
+- **Prioridade**: Baixa
 
 ---
 
-## Group E — Loading
+## Grupo D — Transformação
 
-### E1. Connection factory (`etl/load/connection.py`)
-Build a MySQL connection from `DatabaseConfig`; on failure raise `DatabaseConnectionError` with a `pt_BR` message
-that never contains the password; expose the connection through a small interface so tests can substitute
-a fake.
-- **Requirements**: FR-008, NFR-004, NFR-005
-- **Priority**: High
+### D1. Mapeamento de colunas (`etl/transform/mapping.py`)
+Aplicar o mapa origem→destino configurado a cada linha; descartar colunas de origem não mapeadas; verificar na inicialização (a partir
+da linha de cabeçalho) que cada coluna de origem mapeada existe e lançar `MappingError` listando as ausentes
+antes de qualquer carga começar.
+- **Requisitos**: FR-003
+- **Prioridade**: Alta
 
-### E2. Retry with backoff
-Retry connection establishment and mid-run reconnection a configurable number of times with exponential
-backoff before failing the run.
-- **Requirements**: FR-008, NFR-003
-- **Priority**: Medium
+### D2. Limpeza e normalização (`etl/transform/cleaning.py`)
+Remover espaços em branco no texto (trim); converter células vazias/apenas com espaços para `None`; fornecer um registro de
+normalizadores por coluna (maiúsculas, minúsculas, remover pontuação, colapsar espaços internos) aplicados apenas onde configurado.
+- **Requisitos**: FR-004
+- **Prioridade**: Alta
 
-### E3. Pre-flight target checks
-Before loading, verify the target table exists and that every mapped target column exists in it; abort with
-a `pt_BR` message naming the missing table/column.
-- **Requirements**: FR-010, FR-003, NFR-003
-- **Priority**: High
+### D3. Coerção de tipos (`etl/transform/types.py`)
+Converter valores para os tipos de destino declarados — `int`, `Decimal`, `date`, `datetime`, `bool`, `str` —
+incluindo conversão de data serial do Excel e separadores decimais sensíveis ao locale. Uma conversão com falha produz um
+resultado de falha de tipagem em vez de uma exceção que interrompe a execução.
+- **Requisitos**: FR-005
+- **Prioridade**: Alta
 
-### E4. Batch inserter (`etl/load/loader.py`)
-Accumulate validated records into batches of the configured size and insert them with a parameterized
-`executemany` / multi-row `INSERT`; commit per successful batch.
-- **Requirements**: FR-009, NFR-002, NFR-004
-- **Priority**: High
+### D4. Mecanismo de validação (`etl/transform/validation.py`)
+Avaliar campos obrigatórios, intervalo, comprimento e resultados de conversão de tipo por linha; produzir ou um registro limpo
+ou um `Rejection(sheet, source_row, column, reason_pt_br)`; continuar processando as linhas subsequentes.
+- **Requisitos**: FR-006, FR-005, NFR-009
+- **Prioridade**: Alta
 
-### E5. Batch failure handling
-On batch failure, roll back the transaction and then either (a) retry the batch row-by-row to isolate and
-reject the offending row, or (b) abort — selected by configuration. Guarantee no partially committed batch.
-- **Requirements**: FR-009, NFR-003, FR-006
-- **Priority**: High
+### D5. Limite de rejeição
+Rastrear a contagem de linhas rejeitadas ao longo da execução e abortar com `RejectionThresholdExceeded` assim que o limite
+absoluto/percentual configurado for ultrapassado.
+- **Requisitos**: FR-006
+- **Prioridade**: Média
 
-### E6. Load modes
-Implement `append`, `truncate` (empty target inside the run's transaction boundary before inserting) and
-`upsert` (`INSERT ... ON DUPLICATE KEY UPDATE` against the declared unique key).
-- **Requirements**: FR-010, FR-015
-- **Priority**: Medium
+### D6. Deduplicação (`etl/transform/dedup.py`)
+Quando uma chave de negócio é configurada, manter um conjunto limitado em memória de chaves vistas e descartar ou sinalizar repetições
+de acordo com a configuração; não realizar operação quando nenhuma chave for configurada.
+- **Requisitos**: FR-007, NFR-001
+- **Prioridade**: Média
 
 ---
 
-## Group F — Orchestration, CLI and Reporting
+## Grupo E — Carga
 
-### F1. Pipeline orchestrator (`etl/pipeline.py`)
-Wire extract → chunk → map → clean → coerce → validate → dedup → load as a lazy iterator chain; own the
-run lifecycle, counters, error propagation and final teardown.
-- **Requirements**: FR-001…FR-010, NFR-001, NFR-003
-- **Priority**: High
+### E1. Fábrica de conexão (`etl/load/connection.py`)
+Criar uma conexão MySQL a partir de `DatabaseConfig`; em caso de falha, lançar `DatabaseConnectionError` com uma mensagem `pt_BR`
+que nunca contenha a senha; expor a conexão através de uma interface pequena para que os testes possam substituir por
+um fake.
+- **Requisitos**: FR-008, NFR-004, NFR-005
+- **Prioridade**: Alta
+
+### E2. Retry com backoff
+Tentar novamente o estabelecimento da conexão e a reconexão no meio da execução um número configurável de vezes com backoff
+exponencial antes de falhar a execução.
+- **Requisitos**: FR-008, NFR-003
+- **Prioridade**: Média
+
+### E3. Verificações pré-execução do destino
+Antes de carregar, verificar se a tabela de destino existe e se cada coluna de destino mapeada existe nela; abortar com
+uma mensagem `pt_BR` nomeando a tabela/coluna ausente.
+- **Requisitos**: FR-010, FR-003, NFR-003
+- **Prioridade**: Alta
+
+### E4. Inseridor em lote (`etl/load/loader.py`)
+Acumular registros validados em lotes do tamanho configurado e inseri-los com um `executemany` parametrizado /
+`INSERT` multi-linha; realizar o commit por lote bem-sucedido.
+- **Requisitos**: FR-009, NFR-002, NFR-004
+- **Prioridade**: Alta
+
+### E5. Tratamento de falha de lote
+Em caso de falha de lote, reverter a transação e então (a) tentar novamente o lote linha por linha para isolar e
+rejeitar a linha ofensiva, ou (b) abortar — selecionado por configuração. Garantir que nenhum lote seja parcialmente confirmado.
+- **Requisitos**: FR-009, NFR-003, FR-006
+- **Prioridade**: Alta
+
+### E6. Modos de carga
+Implementar `append`, `truncate` (esvaziar o destino dentro da fronteira transacional da execução antes de inserir) e
+`upsert` (`INSERT ... ON DUPLICATE KEY UPDATE` contra a chave única declarada).
+- **Requisitos**: FR-010, FR-015
+- **Prioridade**: Média
+
+---
+
+## Grupo F — Orquestração, CLI e Relatórios
+
+### F1. Orquestrador do pipeline (`etl/pipeline.py`)
+Conectar extração → blocos → mapeamento → limpeza → coerção → validação → deduplicação → carga como uma cadeia de iteradores preguiçosos; possuir o
+ciclo de vida da execução, contadores, propagação de erros e desmontagem final.
+- **Requisitos**: FR-001…FR-010, NFR-001, NFR-003
+- **Prioridade**: Alta
 
 ### F2. CLI (`etl/cli.py`)
-`argparse`-based interface accepting the config path plus overrides (source file, table, chunk/batch size,
-log level, `--dry-run`, `--verbose`); `pt_BR` help text; exit `0` on success and documented non-zero codes
-on each failure class.
-- **Requirements**: FR-012, FR-011, NFR-007
-- **Priority**: High
+Interface baseada em `argparse` aceitando o caminho da config mais sobreposições (arquivo de origem, tabela, tamanho do bloco/lote,
+nível de log, `--dry-run`, `--verbose`); texto de ajuda em `pt_BR`; sair com `0` em caso de sucesso e códigos diferentes de zero documentados
+para cada classe de falha.
+- **Requisitos**: FR-012, FR-011, NFR-007
+- **Prioridade**: Alta
 
-### F3. Dry-run mode
-Run extraction, transformation and validation with the loader replaced by a no-op that only counts, so no
-database write occurs; still produce the rejection report and summary.
-- **Requirements**: FR-012, FR-006
-- **Priority**: Medium
+### F3. Modo Dry-run
+Executar a extração, transformação e validação com o carregador substituído por um no-op que apenas conta, para que nenhuma
+gravação no banco de dados ocorra; ainda assim, produzir o relatório de rejeição e o resumo.
+- **Requisitos**: FR-012, FR-006
+- **Prioridade**: Média
 
-### F4. Progress reporting (`etl/reporting.py`)
-Maintain counters for rows read / transformed / loaded / rejected and emit a progress line after each chunk.
-- **Requirements**: FR-014, FR-013
-- **Priority**: Medium
+### F4. Relatório de progresso (`etl/reporting.py`)
+Manter contadores para linhas lidas / transformadas / carregadas / rejeitadas e emitir uma linha de progresso após cada bloco.
+- **Requisitos**: FR-014, FR-013
+- **Prioridade**: Média
 
-### F5. Run summary
-On completion (success or failure), print a `pt_BR` summary: totals per counter and elapsed time.
-- **Requirements**: FR-014, NFR-007
-- **Priority**: Medium
+### F5. Resumo de execução
+Na conclusão (sucesso ou falha), imprimir um resumo em `pt_BR`: totais por contador e tempo decorrido.
+- **Requisitos**: FR-014, NFR-007
+- **Prioridade**: Média
 
-### F6. Rejection report writer
-Write all `Rejection` records to the configured output file (CSV) with sheet, source row, column and reason.
-- **Requirements**: FR-006, NFR-009
-- **Priority**: Medium
+### F6. Gravador de relatório de rejeição
+Gravar todos os registros de `Rejection` no arquivo de saída configurado (CSV) com planilha, linha de origem, coluna e motivo.
+- **Requisitos**: FR-006, NFR-009
+- **Prioridade**: Média
 
 ---
 
-## Group G — Restartability
+## Grupo G — Reinicialização
 
 ### G1. Checkpointing (`etl/checkpoint.py`)
-Persist the last committed source row position after each successful batch commit.
-- **Requirements**: FR-015
-- **Priority**: Completed
+Persistir a última posição da linha de origem confirmada após cada commit de lote bem-sucedido.
+- **Requisitos**: FR-015
+- **Prioridade**: Concluído
 
-### G2. Resume option
-A `--resume` flag that reads the checkpoint and skips source rows up to the recorded position.
-- **Requirements**: FR-015
-- **Priority**: Completed
-
----
-
-## Group J — Dimension Tables Loading
-
-### J1. Mapping for dimension tables
-Define column mappings for `tb_beneficiarios`, `tb_especialidades`, `tb_profissionais`, and `tb_usuarios` in the configuration, ensuring they map to the correct source columns.
-- **Requirements**: FR-003, FR-016
-- **Priority**: High
-
-### J2. Deduplication for dimension tables
-Ensure that data loaded into dimension tables is deduplicated based on their respective primary keys to maintain data integrity.
-- **Requirements**: FR-007, FR-016
-- **Priority**: High
-
-### J3. Orchestration of multi-table load
-Extend the pipeline orchestrator to support loading multiple tables in a single run or sequentially, according to the configuration.
-- **Requirements**: FR-016, F1
-- **Priority**: High
+### G2. Opção de retomada (Resume)
+Uma flag `--resume` que lê o checkpoint e pula as linhas de origem até a posição gravada.
+- **Requisitos**: FR-015
+- **Prioridade**: Concluído
 
 ---
 
-## Group H — Testing and Quality Assurance
+## Grupo J — Carga de Tabelas de Dimensão
 
-### H1. Test fixtures
-Generate small `.xlsx` fixtures programmatically (valid rows, bad types, missing required fields, duplicate
-keys, empty cells) plus a fake MySQL connection/cursor recording executed statements.
-- **Requirements**: NFR-005
-- **Priority**: High
+### J1. Mapeamento para tabelas de dimensão
+Definir mapeamentos de colunas para `tb_beneficiarios`, `tb_especialidades`, `tb_profissionais` e `tb_usuarios` na configuração, garantindo que eles mapeiem para as colunas de origem corretas.
+- **Requisitos**: FR-003, FR-016
+- **Prioridade**: Alta
 
-### H2. Unit tests per module
+### J2. Deduplicação para tabelas de dimensão
+Garantir que os dados carregados nas tabelas de dimensão sejam deduplicados com base em suas respectivas chaves primárias para manter a integridade dos dados.
+- **Requisitos**: FR-007, FR-016
+- **Prioridade**: Alta
+
+### J3. Orquestração de carga multi-tabela
+Estender o orquestrador do pipeline para suportar o carregamento de múltiplas tabelas em uma única execução ou sequencialmente, de acordo com a configuração.
+- **Requisitos**: FR-016, F1
+- **Prioridade**: Alta
+
+---
+
+## Grupo H — Testes e Garantia de Qualidade
+
+### H1. Fixtures de teste
+Gerar pequenas fixtures `.xlsx` programaticamente (linhas válidas, tipos incorretos, campos obrigatórios ausentes, chaves duplicadas,
+células vazias) mais uma conexão/cursor MySQL falso registrando instruções executadas.
+- **Requisitos**: NFR-005
+- **Prioridade**: Alta
+
+### H2. Testes unitários por módulo
 `../tests/test_config.py`, `../tests/test_extract.py`, `../tests/test_mapping.py`, `../tests/test_cleaning.py`, `../tests/test_types.py`,
 `../tests/test_validation.py`, `../tests/test_dedup.py`, `../tests/test_connection.py`, `../tests/test_loader.py`, `../tests/test_reporting.py`,
-`../tests/test_cli.py` — each covering happy path and the failure criteria of its requirements.
-- **Requirements**: NFR-005, and the FR it covers
-- **Priority**: High
+`../tests/test_cli.py` — cada um cobrindo o caminho feliz e os critérios de falha de seus requisitos.
+- **Requisitos**: NFR-005 e o FR que ele cobre
+- **Prioridade**: Alta
 
-### H3. Integration test with fake database
-End-to-end `../tests/test_pipeline.py` running a fixture workbook through the whole chain against the fake
-connection, asserting loaded/rejected counts and exit code.
-- **Requirements**: NFR-005, NFR-003, FR-001…FR-014
-- **Priority**: High
+### H3. Teste de integração com banco de dados falso
+End-to-end `../tests/test_pipeline.py` executando uma planilha de fixture através de toda a cadeia contra a conexão falsa,
+assegurando contagens de carregados/rejeitados e código de saída.
+- **Requisitos**: NFR-005, NFR-003, FR-001…FR-014
+- **Prioridade**: Alta
 
-### H4. Memory and throughput checks
-A generated large-fixture test asserting bounded memory growth and measuring rows/minute against the
-NFR-002 target; marked slow/optional so the default suite stays fast.
-- **Requirements**: NFR-001, NFR-002
-- **Priority**: Medium
+### H4. Verificações de memória e taxa de transferência
+Um teste de fixture grande gerado assegurando o crescimento limitado da memória e medindo linhas/minuto contra a
+meta NFR-002; marcado como lento/opcional para que a suite padrão permaneça rápida.
+- **Requisitos**: NFR-001, NFR-002
+- **Prioridade**: Média
 
-### H5. Security assertions
-Tests proving passwords never appear in logs/messages/tracebacks and that all SQL carrying data uses
-parameter placeholders.
-- **Requirements**: NFR-004
-- **Priority**: High
+### H5. Asserções de segurança
+Testes provando que senhas nunca aparecem em logs/mensagens/tracebacks e que todo SQL carregando dados usa
+placeholders de parâmetros.
+- **Requisitos**: NFR-004
+- **Prioridade**: Alta
 
-### H6. Style and docstring pass
-PEP 8 review of the whole package and docstrings on all public functions/classes.
-- **Requirements**: NFR-006
-- **Priority**: Medium
-
----
-
-## Group I — Documentation
-
-### I1. Usage documentation
-Document installation, configuration keys, environment variables, CLI options, exit codes and load modes.
-- **Requirements**: NFR-008, FR-011, FR-012
-- **Priority**: Medium
-
-### I2. Keep specification documents in sync
-Update `docs/requirements.md` statuses and `docs/tasks.md` checkboxes as work lands.
-- **Requirements**: NFR-010
-- **Priority**: Medium
+### H6. Passagem de estilo e docstring
+Revisão PEP 8 de todo o pacote e docstrings em todas as funções/classes públicas.
+- **Requisitos**: NFR-006
+- **Prioridade**: Média
 
 ---
 
-## Requirement Coverage Matrix
+## Grupo I — Documentação
 
-| Requirement | Plan items |
+### I1. Documentação de uso
+Documentar instalação, chaves de configuração, variáveis de ambiente, opções de CLI, códigos de saída e modos de carga.
+- **Requisitos**: NFR-008, FR-011, FR-012
+- **Prioridade**: Média
+
+### I2. Manter documentos de especificação sincronizados
+Atualizar os status de `docs/requirements.md` e os checkboxes de `docs/tasks.md` conforme o trabalho é entregue.
+- **Requisitos**: NFR-010
+- **Prioridade**: Média
+
+---
+
+## Matriz de Cobertura de Requisitos
+
+| Requisito | Itens do Plano |
 |---|---|
 | FR-001 | C1, C3, C4, F1, H2 |
 | FR-002 | B1, B3, C2, F1 |
