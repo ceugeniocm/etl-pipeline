@@ -303,7 +303,7 @@
       },
       "load": {
         "table": "tb_beneficiarios",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": [
           "id_beneficiario"
         ]
@@ -329,7 +329,7 @@
       },
       "load": {
         "table": "tb_especialidades",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": [
           "id_especialidade"
         ]
@@ -360,7 +360,7 @@
       },
       "load": {
         "table": "tb_profissionais",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": [
           "id_profissional"
         ]
@@ -383,7 +383,7 @@
       },
       "load": {
         "table": "tb_usuarios",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": [
           "id_usuario"
         ]

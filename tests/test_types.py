@@ -64,6 +64,15 @@ class TestTypes(unittest.TestCase):
         self.assertEqual(date(2023, 7, 31), result["d"])
         self.assertEqual(datetime(2023, 7, 31, 18, 0), result["dt"])
 
+    def test_coerce_historical_dates(self):
+        """Garante que datas anteriores a 1970 são tratadas corretamente (Tarefa 65)."""
+        config = MappingConfig(types={"d": "date", "dt": "datetime"})
+        # Caso reportado pelo usuário
+        values = {"d": "1940-07-26", "dt": "1940-07-26T00:00:00"}
+        result = coerce_row(values, config)
+        self.assertEqual(date(1940, 7, 26), result["d"])
+        self.assertEqual(datetime(1940, 7, 26, 0, 0), result["dt"])
+
     def test_coerce_date_from_datetime_object(self):
         """Extrai apenas a data se o destino for date e a origem for datetime."""
         config = MappingConfig(types={"d": "date"})
