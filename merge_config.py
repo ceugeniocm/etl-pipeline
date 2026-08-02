@@ -3,7 +3,7 @@ import json
 with open('config.json', 'r') as f:
     config = json.load(f)
 
-with open('full_mapping.json', 'r') as f:
+with open('full_mapping_.json', 'r') as f:
     new_mapping = json.load(f)
 
 config['mapping']['columns'] = new_mapping['columns']

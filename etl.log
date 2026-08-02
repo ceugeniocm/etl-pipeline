@@ -11341,3 +11341,76 @@
 2026-08-01 20:33:43 [ERROR] etl.load.loader: Falha ao gravar a linha 8641: 1048 (23000): Column 'id_agendamento' cannot be null
 2026-08-01 20:33:43 [ERROR] etl.load.loader: Falha ao gravar a linha 8642: 1048 (23000): Column 'id_agendamento' cannot be null
 2026-08-01 20:33:43 [ERROR] etl.load.loader: Falha ao gravar a linha 8643: 1048 (23000): Column 'id_agendamento' cannot be null
+2026-08-02 11:40:54 [INFO] etl.pipeline: Início da execução: planilha 'agendaAnonimizado.xlsx' -> tabela 'tb_agendamentos'.
+2026-08-02 11:40:54 [INFO] etl.pipeline: Modo de carga: truncate.
+2026-08-02 11:45:21 [INFO] etl.pipeline: Início da execução: planilha 'agendaAnonimizado.xlsx' -> tabela 'tb_agendamentos'.
+2026-08-02 11:45:21 [INFO] etl.pipeline: Modo de carga: truncate.
+2026-08-02 11:45:22 [INFO] etl.load.loader: Esvaziando a tabela de destino 'tb_agendamentos'.
+2026-08-02 11:46:17 [INFO] etl.pipeline: Início da execução: planilha 'agendaAnonimizado.xlsx' -> tabela 'tb_agendamentos'.
+2026-08-02 11:46:17 [INFO] etl.pipeline: Modo de carga: truncate.
+2026-08-02 11:46:18 [INFO] etl.load.loader: Esvaziando a tabela de destino 'tb_agendamentos'.
+2026-08-02 11:46:21 [WARNING] etl.load.loader: Falha ao gravar o lote iniciado na linha 2 (496 registros): 1292 (22007): Incorrect datetime value: '1959-04-21 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:21 [ERROR] etl.load.loader: Falha ao gravar a linha 2: 1292 (22007): Incorrect datetime value: '1959-04-21 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:21 [ERROR] etl.load.loader: Falha ao gravar a linha 10: 1292 (22007): Incorrect datetime value: '1957-08-10 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:22 [ERROR] etl.load.loader: Falha ao gravar a linha 15: 1292 (22007): Incorrect datetime value: '1946-07-06 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:22 [ERROR] etl.load.loader: Falha ao gravar a linha 33: 1292 (22007): Incorrect datetime value: '1965-09-11 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:22 [ERROR] etl.load.loader: Falha ao gravar a linha 38: 1292 (22007): Incorrect datetime value: '1942-08-22 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:23 [ERROR] etl.load.loader: Falha ao gravar a linha 63: 1292 (22007): Incorrect datetime value: '1945-12-16 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:23 [ERROR] etl.load.loader: Falha ao gravar a linha 78: 1292 (22007): Incorrect datetime value: '1959-02-19 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:23 [ERROR] etl.load.loader: Falha ao gravar a linha 79: 1292 (22007): Incorrect datetime value: '1950-08-13 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:23 [ERROR] etl.load.loader: Falha ao gravar a linha 145: 1292 (22007): Incorrect datetime value: '1954-12-05 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:23 [ERROR] etl.load.loader: Falha ao gravar a linha 158: 1292 (22007): Incorrect datetime value: '1956-01-14 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:24 [ERROR] etl.load.loader: Falha ao gravar a linha 163: 1292 (22007): Incorrect datetime value: '1954-04-08 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:24 [ERROR] etl.load.loader: Falha ao gravar a linha 169: 1292 (22007): Incorrect datetime value: '1953-07-24 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:24 [ERROR] etl.load.loader: Falha ao gravar a linha 180: 1292 (22007): Incorrect datetime value: '1956-11-21 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:25 [ERROR] etl.load.loader: Falha ao gravar a linha 201: 1292 (22007): Incorrect datetime value: '1953-12-07 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:26 [ERROR] etl.load.loader: Falha ao gravar a linha 224: 1292 (22007): Incorrect datetime value: '1957-04-30 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:26 [ERROR] etl.load.loader: Falha ao gravar a linha 239: 1292 (22007): Incorrect datetime value: '1962-12-26 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:26 [ERROR] etl.load.loader: Falha ao gravar a linha 257: 1292 (22007): Incorrect datetime value: '1966-06-16 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:27 [ERROR] etl.load.loader: Falha ao gravar a linha 264: 1292 (22007): Incorrect datetime value: '1949-06-20 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:27 [ERROR] etl.load.loader: Falha ao gravar a linha 265: 1292 (22007): Incorrect datetime value: '1963-06-09 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:27 [ERROR] etl.load.loader: Falha ao gravar a linha 276: 1292 (22007): Incorrect datetime value: '1940-04-23 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:28 [ERROR] etl.load.loader: Falha ao gravar a linha 285: 1292 (22007): Incorrect datetime value: '1956-01-31 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:28 [ERROR] etl.load.loader: Falha ao gravar a linha 286: 1292 (22007): Incorrect datetime value: '1935-03-16 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:28 [ERROR] etl.load.loader: Falha ao gravar a linha 288: 1292 (22007): Incorrect datetime value: '1962-06-09 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:28 [ERROR] etl.load.loader: Falha ao gravar a linha 293: 1292 (22007): Incorrect datetime value: '1965-02-07 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:29 [ERROR] etl.load.loader: Falha ao gravar a linha 344: 1292 (22007): Incorrect datetime value: '1944-06-07 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:29 [ERROR] etl.load.loader: Falha ao gravar a linha 347: 1292 (22007): Incorrect datetime value: '1939-05-20 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:29 [ERROR] etl.load.loader: Falha ao gravar a linha 353: 1292 (22007): Incorrect datetime value: '1965-12-24 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:29 [ERROR] etl.load.loader: Falha ao gravar a linha 355: 1292 (22007): Incorrect datetime value: '1940-01-27 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:30 [ERROR] etl.load.loader: Falha ao gravar a linha 358: 1292 (22007): Incorrect datetime value: '1956-02-18 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:30 [ERROR] etl.load.loader: Falha ao gravar a linha 371: 1292 (22007): Incorrect datetime value: '1958-01-05 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:30 [ERROR] etl.load.loader: Falha ao gravar a linha 382: 1292 (22007): Incorrect datetime value: '1956-02-01 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:31 [ERROR] etl.load.loader: Falha ao gravar a linha 389: 1292 (22007): Incorrect datetime value: '1959-10-23 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:31 [ERROR] etl.load.loader: Falha ao gravar a linha 426: 1292 (22007): Incorrect datetime value: '1960-12-30 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:31 [ERROR] etl.load.loader: Falha ao gravar a linha 474: 1292 (22007): Incorrect datetime value: '1966-02-14 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:31 [ERROR] etl.load.loader: Falha ao gravar a linha 475: 1292 (22007): Incorrect datetime value: '1962-06-01 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:32 [ERROR] etl.load.loader: Falha ao gravar a linha 503: 1292 (22007): Incorrect datetime value: '1948-12-13 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:32 [ERROR] etl.load.loader: Falha ao gravar a linha 529: 1292 (22007): Incorrect datetime value: '1943-05-09 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:32 [ERROR] etl.load.loader: Falha ao gravar a linha 531: 1292 (22007): Incorrect datetime value: '1948-09-01 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:32 [ERROR] etl.load.loader: Falha ao gravar a linha 540: 1292 (22007): Incorrect datetime value: '1962-11-01 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:33 [ERROR] etl.load.loader: Falha ao gravar a linha 589: 1292 (22007): Incorrect datetime value: '1941-11-22 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:33 [ERROR] etl.load.loader: Falha ao gravar a linha 649: 1292 (22007): Incorrect datetime value: '1949-12-01 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:33 [ERROR] etl.load.loader: Falha ao gravar a linha 659: 1292 (22007): Incorrect datetime value: '1950-06-15 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:34 [ERROR] etl.load.loader: Falha ao gravar a linha 693: 1292 (22007): Incorrect datetime value: '1965-06-20 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:35 [ERROR] etl.load.loader: Falha ao gravar a linha 737: 1292 (22007): Incorrect datetime value: '1957-07-17 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:35 [ERROR] etl.load.loader: Falha ao gravar a linha 746: 1292 (22007): Incorrect datetime value: '1947-02-25 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:35 [ERROR] etl.load.loader: Falha ao gravar a linha 762: 1292 (22007): Incorrect datetime value: '1957-02-05 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:35 [ERROR] etl.load.loader: Falha ao gravar a linha 802: 1292 (22007): Incorrect datetime value: '1956-01-12 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:36 [ERROR] etl.load.loader: Falha ao gravar a linha 813: 1292 (22007): Incorrect datetime value: '1943-01-27 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:36 [ERROR] etl.load.loader: Falha ao gravar a linha 822: 1292 (22007): Incorrect datetime value: '1955-06-26 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:36 [ERROR] etl.load.loader: Falha ao gravar a linha 896: 1292 (22007): Incorrect datetime value: '1956-06-20 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:37 [ERROR] etl.load.loader: Falha ao gravar a linha 982: 1292 (22007): Incorrect datetime value: '1958-04-29 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:38 [ERROR] etl.load.loader: Falha ao gravar a linha 1096: 1292 (22007): Incorrect datetime value: '1944-03-05 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:38 [ERROR] etl.load.loader: Falha ao gravar a linha 1106: 1292 (22007): Incorrect datetime value: '1966-05-31 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1119: 1292 (22007): Incorrect datetime value: '1955-05-10 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1127: 1292 (22007): Incorrect datetime value: '1949-01-22 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1129: 1292 (22007): Incorrect datetime value: '1964-03-24 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1190: 1292 (22007): Incorrect datetime value: '1959-05-06 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1202: 1292 (22007): Incorrect datetime value: '1940-04-15 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:39 [ERROR] etl.load.loader: Falha ao gravar a linha 1208: 1292 (22007): Incorrect datetime value: '1955-08-25 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:40 [ERROR] etl.load.loader: Falha ao gravar a linha 1311: 1292 (22007): Incorrect datetime value: '1966-09-16 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:40 [ERROR] etl.load.loader: Falha ao gravar a linha 1319: 1292 (22007): Incorrect datetime value: '1958-06-12 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:40 [ERROR] etl.load.loader: Falha ao gravar a linha 1336: 1292 (22007): Incorrect datetime value: '1942-02-11 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:40 [ERROR] etl.load.loader: Falha ao gravar a linha 1379: 1292 (22007): Incorrect datetime value: '1966-02-07 00:00:00' for column 'dtnasc' at row 1
+2026-08-02 11:46:41 [ERROR] etl.load.loader: Falha ao gravar a linha 1382: 1292 (22007): Incorrect datetime value: '1940-07-26 00:00:00' for column 'dtnasc' at row 1

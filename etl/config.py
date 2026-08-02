@@ -830,7 +830,6 @@ def parse_config(
     logging_setup.register_secret(database.password)
 
     dimensions: list[DimensionConfig] = []
-    dimensions_reader = root.section("dimensions")
     # A seção 'dimensions' é opcional e deve ser uma lista de objetos
     raw_dimensions = root.raw("dimensions")
     if raw_dimensions:

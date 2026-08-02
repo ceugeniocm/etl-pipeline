@@ -588,5 +588,60 @@ class TestNoSideEffects(ConfigTestCase):
         self.assertEqual("servidor-inexistente.invalid", self.parse(raw).database.host)
 
 
+class TestDimensions(ConfigTestCase):
+    """Validação da seção opcional 'dimensions' (FR-016)."""
+
+    def test_dimensions_is_optional(self):
+        raw = minimal_raw()
+        raw.pop("dimensions", None)
+        self.assertEqual([], self.parse(raw).dimensions)
+
+    def test_dimensions_as_list_of_objects(self):
+        raw = minimal_raw(
+            dimensions=[
+                {
+                    "mapping": {"columns": {"BENEF_ID": "id_beneficiario"}},
+                    "load": {"table": "tb_beneficiarios"},
+                }
+            ]
+        )
+        parsed = self.parse(raw)
+        self.assertEqual(1, len(parsed.dimensions))
+        self.assertEqual("tb_beneficiarios", parsed.dimensions[0].load.table)
+
+    def test_dimensions_must_be_a_list(self):
+        self.assert_error_mentions(
+            "dimensions", self.parse, minimal_raw(dimensions={"not": "a list"})
+        )
+
+    def test_dimension_items_must_be_objects(self):
+        self.assert_error_mentions(
+            "dimensions[0]", self.parse, minimal_raw(dimensions=["não é objeto"])
+        )
+
+    def test_dimension_mapping_is_validated(self):
+        raw = minimal_raw(
+            dimensions=[
+                {
+                    "mapping": {"columns": {}},  # Vazio é inválido
+                    "load": {"table": "t"},
+                }
+            ]
+        )
+        self.assert_error_mentions("mapeamento", self.parse, raw)
+
+    def test_dimension_unknown_key(self):
+        raw = minimal_raw(
+            dimensions=[
+                {
+                    "mapping": {"columns": {"A": "b"}},
+                    "load": {"table": "t"},
+                    "extra": 1,
+                }
+            ]
+        )
+        self.assert_error_mentions("dimensions[0].extra", self.parse, raw)
+
+
 if __name__ == "__main__":
     unittest.main()

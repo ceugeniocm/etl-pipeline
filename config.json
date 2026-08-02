@@ -8,6 +8,7 @@
   "mapping": {
     "columns": {
       "TIPOAGENDA": "tipoagenda",
+      "AG_ID": "id_agendamento",
       "AGM_ID": "agm_id",
       "AG_PENDENTE": "ag_pendente",
       "AG_DTHORAAGENDA": "ag_dthoraagenda",
@@ -15,7 +16,6 @@
       "DATA": "data",
       "ATD": "atd",
       "FIM_ATD": "fim_atd",
-      "AG_ID": "id_agendamento",
       "TPA_ID": "tpa_id",
       "AG_STATUSAGENDAMENTO": "status",
       "AG_TIPOAGENDAMENTO": "ag_tipoagendamento",
@@ -116,7 +116,7 @@
       "data": "datetime",
       "atd": "str",
       "fim_atd": "str",
-      "ag_id": "int",
+      "agm_id": "int",
       "tpa_id": "int",
       "status": "str",
       "ag_tipoagendamento": "str",
@@ -228,7 +228,6 @@
     "rejection_threshold": "100%",
     "business_key": [
       "id_agendamento",
-      "ag_id",
       "benef_id",
       "data_hora"
     ],
@@ -270,8 +269,8 @@
           "BENEF_NOMEAFETIVO": "nomeafetivo",
           "BENEF_DTNASC": "dtnasc",
           "BENEF_CNS": "cns",
-          "BENEF_CPF": "benef_cpf",
-          "BENEF_RN": "benef_rn",
+          "BENEF_CPF": "cpf",
+          "BENEF_RN": "rn",
           "BENEF_SEXO": "sexo",
           "BENEF_TEMPORARIO": "temporario",
           "BENEF_BAIRRO": "bairro",
@@ -287,7 +286,7 @@
         "types": {
           "id_beneficiario": "int",
           "dtnasc": "datetime",
-          "benef_cpf": "int",
+          "cpf": "int",
           "rn": "int",
           "temporario": "int",
           "dddresid": "int",
