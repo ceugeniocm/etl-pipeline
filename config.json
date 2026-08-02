@@ -36,7 +36,7 @@
   "load": {
     "table": "tb_agendamentos",
     "mode": "truncate",
-    "batch_size": 1000,
+    "batch_size": 5000,
     "unique_key": [
       "id_agendamento",
       "data"
@@ -49,6 +49,7 @@
     "rejection_report": "rejeicoes.csv",
     "checkpoint_file": "checkpoint.json",
     "dry_run": false,
-    "resume": false
+    "resume": false,
+    "workers": 2
   }
 }

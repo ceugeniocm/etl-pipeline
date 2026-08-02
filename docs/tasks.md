@@ -221,3 +221,10 @@ Marque uma tarefa como concluída alterando `[ ]` para `[x]`.
 - [x] **71.** Atualizar o pipeline para sequenciar o carregamento das tabelas de dimensão antes ou juntamente com a tabela de fatos principal. — *Plano: J3 · Requisito: FR-016*
 - [x] **72.** Adicionar testes unitários para a nova lógica de carregamento de tabelas de dimensão, garantindo deduplicação e mapeamento corretos. — *Plano: H2 · Requisito: FR-016, NFR-005*
 - [x] **73.** Executar testes de integração para verificar o processo ETL completo com múltiplas tabelas de destino. — *Plano: H3 · Requisito: FR-016, NFR-003*
+
+## Fase 11 — Paralelismo
+
+- [x] **74.** Adicionar a chave `workers` em `RunConfig` no arquivo `etl/config.py` e atualizar o parser de configuração. — *Plano: K1 · Requisito: FR-017*
+- [x] **75.** Refatorar `etl/pipeline.py` para isolar a lógica de transformação de uma linha em uma função top-level (padrão para ser serializável pelo `multiprocessing`). — *Plano: K2 · Requisito: FR-017*
+- [x] **76.** Implementar o uso de `ProcessPoolExecutor` no orquestrador do pipeline para processar blocos de linhas em paralelo. — *Plano: K2 · Requisito: FR-017, NFR-001*
+- [x] **77.** Escrever `../tests/test_parallel.py` garantindo que o pipeline funcione corretamente com múltiplos workers e que a deduplicação permaneça íntegra. — *Plano: H2 · Requisito: FR-017, NFR-005*

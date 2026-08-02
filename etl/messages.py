@@ -198,6 +198,7 @@ CLI_HELP_DRY_RUN = (
 )
 CLI_HELP_VERBOSE = "Aumenta o detalhamento das mensagens (equivale a DEBUG)."
 CLI_HELP_RESUME = "Retoma a execução a partir do último ponto salvo."
+CLI_HELP_WORKERS = "Quantidade de processos paralelos para transformação."
 CLI_NOT_IMPLEMENTED = (
     "A execução do pipeline ainda não foi implementada (prevista para a "
     "Fase 6 em docs/tasks.md)."

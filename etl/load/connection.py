@@ -82,6 +82,7 @@ def get_connection(config: DatabaseConfig) -> Connection:
                 password=config.password,
                 database=config.database,
                 connect_timeout=10,
+                compress=True,
             )
             # No mysql-connector, se connect() não lançar exceção, a conexão está aberta.
             # Mas ping() ou is_connected() garantem que está ativa.

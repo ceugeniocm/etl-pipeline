@@ -46,6 +46,7 @@ The CLI supports several arguments that override the configuration file values:
 | `--dry-run` | Execute extraction, transformation, and validation without writing to the database. |
 | `--verbose` | Shortcut for `--log-level DEBUG`. |
 | `--resume` | Resume execution from the last recorded position in the checkpoint file. |
+| `--workers` | Number of parallel processes for transformation. |
 | `--help` | Show help message. |
 
 ## Configuration File
@@ -94,6 +95,7 @@ The configuration is a JSON file with the following sections:
 - `checkpoint_file` (string, optional): Path to the JSON checkpoint file (default: `checkpoint.json`).
 - `dry_run` (boolean, optional): Default: `false`.
 - `resume` (boolean, optional): Default: `false`.
+- `workers` (integer, optional): Number of parallel processes (default: 1).
 
 ## Environment Variables
 
@@ -110,6 +112,7 @@ Environment variables can be used to override configuration values. They take pr
 - `ETL_DRY_RUN`: Enable dry run (`true`/`1`).
 - `ETL_RESUME`: Enable resume mode (`true`/`1`).
 - `ETL_CHECKPOINT_FILE`: Path to the checkpoint file.
+- `ETL_WORKERS`: Number of parallel processes.
 
 ## Load Modes
 

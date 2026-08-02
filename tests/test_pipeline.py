@@ -93,8 +93,8 @@ class TestPipeline(unittest.TestCase):
         self.assertTrue(success)
         self.assertEqual(pipeline.stats.loaded, 4)
         
-        # Com batch_size=2 e 4 linhas carregadas, devemos ter 2 commits de lote
-        self.assertEqual(conn.committed, 2)
+        # Com chunk_size=10 e 4 linhas válidas no mesmo bloco, temos 1 commit final
+        self.assertEqual(conn.committed, 1)
         
         # Verifica se as queries foram geradas corretamente
         executed_sqls = [sql for sql, _ in conn.cursor_instance.executed]

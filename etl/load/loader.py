@@ -83,6 +83,7 @@ class Loader:
         self,
         batch_data: list[tuple[int, dict[str, Any]]],
         on_success: Callable[[int], None] | None = None,
+        auto_commit: bool = True,
     ) -> tuple[int, int]:
         """Grava um lote de registros no banco (FR-009, tarefa 38).
 
@@ -113,7 +114,8 @@ class Loader:
             try:
                 # Parameterized executemany (Task 38)
                 cursor.executemany(sql, rows_to_insert)
-                self._conn.commit()  # Commit após sucesso do lote (Task 39)
+                if auto_commit:
+                    self._conn.commit()  # Commit após sucesso do lote (Task 39)
                 loaded += len(sub_batch)
 
                 if on_success:
@@ -136,7 +138,7 @@ class Loader:
                         first_row=sub_batch[0][0], size=len(sub_batch), reason=str(err)
                     )
                 )
-                l, f = self._load_row_by_row(sub_batch, on_success)
+                l, f = self._load_row_by_row(sub_batch, on_success, auto_commit=auto_commit)
                 loaded += l
                 failed += f
             finally:
@@ -148,6 +150,7 @@ class Loader:
         self,
         batch_data: list[tuple[int, dict[str, Any]]],
         on_success: Callable[[int], None] | None = None,
+        auto_commit: bool = True,
     ) -> tuple[int, int]:
         """Tenta inserir cada linha individualmente após falha do lote (tarefa 40)."""
         loaded = 0
@@ -158,7 +161,8 @@ class Loader:
             data = tuple(values.get(col) for col in self._columns)
             try:
                 cursor.execute(sql, data)
-                self._conn.commit()
+                if auto_commit:
+                    self._conn.commit()
                 loaded += 1
                 if on_success:
                     on_success(row_number)

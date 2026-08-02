@@ -111,6 +111,9 @@ DEFAULT_REJECTION_REPORT = "rejeicoes.csv"
 #: Arquivo padrão para o ponto de controle (FR-015).
 DEFAULT_CHECKPOINT_FILE = "checkpoint.json"
 
+#: Número padrão de processos para transformação paralela (FR-017).
+DEFAULT_WORKERS = 1
+
 #: Prefixo das variáveis de ambiente reconhecidas (FR-011).
 ENV_PREFIX = "ETL_"
 
@@ -152,6 +155,7 @@ ENV_OVERRIDES = {
     "ETL_CHECKPOINT_FILE": "run.checkpoint_file",
     "ETL_DRY_RUN": "run.dry_run",
     "ETL_RESUME": "run.resume",
+    "ETL_WORKERS": "run.workers",
 }
 
 _TRUE_VALUES = ("1", "true", "t", "yes", "y", "on", "sim", "s")
@@ -239,6 +243,7 @@ class RunConfig:
     checkpoint_file: str = DEFAULT_CHECKPOINT_FILE
     dry_run: bool = False
     resume: bool = False
+    workers: int = DEFAULT_WORKERS
 
 
 @dataclass(frozen=True, slots=True)
@@ -746,6 +751,7 @@ def _parse_run(reader: _Reader) -> RunConfig:
             "checkpoint_file",
             "dry_run",
             "resume",
+            "workers",
         )
     )
     log_level = reader.string("log_level", default=logging_setup.DEFAULT_LOG_LEVEL)
@@ -762,6 +768,7 @@ def _parse_run(reader: _Reader) -> RunConfig:
         ),
         dry_run=reader.boolean("dry_run"),
         resume=reader.boolean("resume"),
+        workers=reader.integer("workers", default=DEFAULT_WORKERS, minimum=1),
     )
 
 

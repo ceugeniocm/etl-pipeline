@@ -53,6 +53,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--verbose", action="store_true", help=messages.CLI_HELP_VERBOSE
     )
     parser.add_argument("--resume", action="store_true", help=messages.CLI_HELP_RESUME)
+    parser.add_argument("--workers", type=int, help=messages.CLI_HELP_WORKERS)
 
     args = parser.parse_args(argv)
 
@@ -68,6 +69,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "run.log_file": args.log_file,
             "run.dry_run": args.dry_run,
             "run.resume": args.resume or None,
+            "run.workers": args.workers,
         }
 
         if args.verbose:

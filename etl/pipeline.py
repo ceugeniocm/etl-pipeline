@@ -9,13 +9,14 @@ execução (contadores, propagação de erros e encerramento da conexão).
 from __future__ import annotations
 
 import logging
-from typing import Any
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+from typing import Any, Iterable
 
 from etl import messages
 from etl.checkpoint import delete_checkpoint, load_checkpoint, save_checkpoint
-from etl.config import EtlConfig
+from etl.config import DimensionConfig, EtlConfig, MappingConfig, ValidationConfig
 from etl.errors import EtlError, RejectionThresholdExceeded
-from etl.extract import open_source, iter_chunks
+from etl.extract import SourceRow, iter_chunks, open_source
 from etl.load.connection import get_connection
 from etl.load.loader import Loader
 from etl.reporting import (
@@ -31,6 +32,34 @@ from etl.transform.types import coerce_row
 from etl.transform.validation import RejectionThreshold, validate_row
 
 logger = logging.getLogger(__name__)
+
+
+def _transform_row(
+    row: SourceRow,
+    mapping: MappingConfig,
+    validation: ValidationConfig,
+    dimensions: list[DimensionConfig],
+) -> tuple[int, str, Any, list[Any]]:
+    """Transforma uma única linha (FR-017).
+    
+    Esta função é top-level para ser serializável pelo multiprocessing.
+    """
+    # 1. Processamento de dimensões
+    dim_outcomes = []
+    for dim_cfg in dimensions:
+        d_mapped = apply_mapping(row, dim_cfg.mapping)
+        d_cleaned = clean_row(d_mapped, dim_cfg.mapping)
+        d_coerced = coerce_row(d_cleaned, dim_cfg.mapping)
+        d_outcome = validate_row(d_coerced, dim_cfg.validation, row.sheet, row.number)
+        dim_outcomes.append(d_outcome)
+
+    # 2. Processamento da fato
+    mapped = apply_mapping(row, mapping)
+    cleaned = clean_row(mapped, mapping)
+    coerced = coerce_row(cleaned, mapping)
+    outcome = validate_row(coerced, validation, row.sheet, row.number)
+
+    return row.number, row.sheet, outcome, dim_outcomes
 
 
 class Pipeline:
@@ -121,99 +150,161 @@ class Pipeline:
                         dim_ctx["loader"] = dim_loader
 
                 # 3. Iteração em blocos (lazy chain)
-                for chunk in iter_chunks(sheet.rows(), self.config.source.chunk_size):
-                    batch_data: list[tuple[int, dict[str, Any]]] = []
-                    dimension_batches: list[list[tuple[int, dict[str, Any]]]] = [
-                        [] for _ in self.dimension_contexts
-                    ]
+                executor = None
+                if self.config.run.workers > 1:
+                    executor = ProcessPoolExecutor(max_workers=self.config.run.workers)
 
-                    for row in chunk:
-                        if last_row and row.number <= last_row:
+                # Executor para carga assíncrona (I/O paralelo)
+                # Usamos apenas 1 worker para garantir a ordem de inserção e evitar 
+                # concorrência na mesma conexão MySQL.
+                load_executor = ThreadPoolExecutor(max_workers=1)
+                load_futures = []
+
+                try:
+                    for chunk in iter_chunks(sheet.rows(), self.config.source.chunk_size):
+                        active_rows = [
+                            r for r in chunk if not (last_row and r.number <= last_row)
+                        ]
+                        if not active_rows:
                             continue
 
-                        self.stats.read += 1
+                        self.stats.read += len(active_rows)
 
-                        # Processamento de dimensões (Task 70)
-                        for i, dim_ctx in enumerate(self.dimension_contexts):
-                            dim_cfg = dim_ctx["config"]
-                            # Mapeamento e limpeza simplificados para dimensões
-                            d_mapped = apply_mapping(row, dim_cfg.mapping)
-                            d_cleaned = clean_row(d_mapped, dim_cfg.mapping)
-                            d_coerced = coerce_row(d_cleaned, dim_cfg.mapping)
-                            
-                            d_outcome = validate_row(
-                                d_coerced, dim_cfg.validation, row.sheet, row.number
+                        if executor:
+                            # Transformação paralela (FR-017)
+                            # Otimização: chunksize > 1 reduz drasticamente o overhead de IPC
+                            map_chunksize = max(1, len(active_rows) // (self.config.run.workers * 2))
+                            results = executor.map(
+                                _transform_row,
+                                active_rows,
+                                [self.config.mapping] * len(active_rows),
+                                [self.config.validation] * len(active_rows),
+                                [list(self.config.dimensions)] * len(active_rows),
+                                chunksize=map_chunksize,
                             )
-                            
-                            if not isinstance(d_outcome, list): # Se passou na validação
-                                key = self._get_unique_key_value(
-                                    d_outcome, dim_cfg.load.unique_key
+                        else:
+                            # Transformação sequencial
+                            results = (
+                                _transform_row(
+                                    r,
+                                    self.config.mapping,
+                                    self.config.validation,
+                                    list(self.config.dimensions),
                                 )
-                                if all(v is not None for v in key) and key not in dim_ctx["seen"]:
-                                    dimension_batches[i].append((row.number, d_outcome))
-                                    dim_ctx["seen"].add(key)
+                                for r in active_rows
+                            )
 
-                        # Pipeline de transformação da fato
-                        mapped = apply_mapping(row, self.config.mapping)
-                        cleaned = clean_row(mapped, self.config.mapping)
-                        coerced = coerce_row(cleaned, self.config.mapping)
+                        batch_data: list[tuple[int, dict[str, Any]]] = []
+                        dimension_batches: list[list[tuple[int, dict[str, Any]]]] = [
+                            [] for _ in self.dimension_contexts
+                        ]
 
-                        outcome = validate_row(
-                            coerced,
-                            self.config.validation,
-                            row.sheet,
-                            row.number,
-                        )
+                        for row_number, sheet_name, outcome, dim_outcomes in results:
+                            # Processamento de dimensões (Deduplicação centralizada)
+                            for i, d_outcome in enumerate(dim_outcomes):
+                                if not isinstance(
+                                    d_outcome, list
+                                ):  # Se passou na validação
+                                    dim_ctx = self.dimension_contexts[i]
+                                    dim_cfg = dim_ctx["config"]
+                                    key = self._get_unique_key_value(
+                                        d_outcome, dim_cfg.load.unique_key
+                                    )
+                                    if (
+                                        all(v is not None for v in key)
+                                        and key not in dim_ctx["seen"]
+                                    ):
+                                        dimension_batches[i].append(
+                                            (row_number, d_outcome)
+                                        )
+                                        dim_ctx["seen"].add(key)
 
-                        if isinstance(outcome, list):  # Rejeições de validação
-                            self.stats.rejected += 1
-                            self.reporter.write(outcome)
-                            self.threshold.count(is_rejected=True)
-                            continue
+                            # Pipeline de transformação da fato (Deduplicação centralizada)
+                            if isinstance(outcome, list):  # Rejeições de validação
+                                self.stats.rejected += 1
+                                self.reporter.write(outcome)
+                                self.threshold.count(is_rejected=True)
+                                continue
 
-                        # Se chegou aqui, a linha passou na validação estrutural
-                        self.stats.transformed += 1
+                            # Se chegou aqui, a linha passou na validação estrutural
+                            self.stats.transformed += 1
 
-                        # Deduplicação
-                        dup_rejection = self.deduplicator.check(
-                            outcome, row.sheet, row.number
-                        )
-                        if dup_rejection:
-                            self.stats.rejected += 1
-                            self.stats.duplicated += 1
-                            self.reporter.write([dup_rejection])
-                            self.threshold.count(is_rejected=True)
-                            continue
+                            # Deduplicação fato
+                            dup_rejection = self.deduplicator.check(
+                                outcome, sheet_name, row_number
+                            )
+                            if dup_rejection:
+                                self.stats.rejected += 1
+                                self.stats.duplicated += 1
+                                self.reporter.write([dup_rejection])
+                                self.threshold.count(is_rejected=True)
+                                continue
 
-                        # Linha limpa e única, pronta para carga
-                        self.threshold.count(is_rejected=False)
-                        batch_data.append((row.number, outcome))
+                            # Linha limpa e única, pronta para carga
+                            self.threshold.count(is_rejected=False)
+                            batch_data.append((row_number, outcome))
 
-                    # 4. Carga do lote (Task 38)
-                    def save_cb(row_num: int) -> None:
-                        save_checkpoint(self.config.run.checkpoint_file, row_num)
+                        # 4. Carga do lote (Task 38)
+                        def save_cb(row_num: int) -> None:
+                            save_checkpoint(self.config.run.checkpoint_file, row_num)
 
-                    # Carga das dimensões antes da fato (Task 71)
-                    for i, dim_ctx in enumerate(self.dimension_contexts):
-                        d_batch = dimension_batches[i]
-                        if d_batch:
-                            if dim_ctx["loader"]:
-                                dim_ctx["loader"].load_batch(d_batch)
-                            else:
-                                # Dry-run de dimensões
-                                pass
+                        def _perform_load(b_data, d_batches):
+                            """Executa a carga de um lote (dimensões e fato)."""
+                            # Carga das dimensões antes da fato (Task 71)
+                            for i, dim_ctx in enumerate(self.dimension_contexts):
+                                db_batch = d_batches[i]
+                                if db_batch and dim_ctx["loader"]:
+                                    dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
 
-                    if loader and batch_data:
-                        loaded, failed = loader.load_batch(batch_data, on_success=save_cb)
-                        self.stats.loaded += loaded
-                        self.stats.rejected += failed
-                    elif batch_data:
-                        # Dry-run: apenas conta como carregado (Task 50)
-                        self.stats.loaded += len(batch_data)
-                        # No dry-run, salvamos o ponto ao final do bloco
-                        save_cb(batch_data[-1][0])
+                            if loader and b_data:
+                                l_count, f_count = loader.load_batch(
+                                    b_data, on_success=None, auto_commit=False
+                                )
+                                conn.commit()
+                                save_cb(b_data[-1][0])
+                                return l_count, f_count
+                            elif b_data:
+                                # Dry-run: salvamos o ponto ao final do bloco
+                                save_cb(b_data[-1][0])
+                                return len(b_data), 0
 
-                    print_progress(self.stats)
+                            if not self.config.run.dry_run and conn:
+                                conn.commit()
+                            return 0, 0
+
+                        if self.config.run.workers > 1:
+                            # Pipelining: Carga assíncrona enquanto processa o próximo chunk
+                            future = load_executor.submit(
+                                _perform_load, batch_data, dimension_batches
+                            )
+                            load_futures.append(future)
+
+                            # Limpa futuros finalizados para atualizar estatísticas
+                            for f in load_futures[:]:
+                                if f.done():
+                                    l_count, f_count = f.result()
+                                    self.stats.loaded += l_count
+                                    self.stats.rejected += f_count
+                                    load_futures.remove(f)
+                        else:
+                            # Sequencial
+                            l_count, f_count = _perform_load(batch_data, dimension_batches)
+                            self.stats.loaded += l_count
+                            self.stats.rejected += f_count
+
+                        print_progress(self.stats)
+
+                    # Aguarda cargas pendentes
+                    for f in load_futures:
+                        l_count, f_count = f.result()
+                        self.stats.loaded += l_count
+                        self.stats.rejected += f_count
+                        print_progress(self.stats)
+
+                finally:
+                    if executor:
+                        executor.shutdown()
+                    load_executor.shutdown(wait=True)
 
             success = True
             delete_checkpoint(self.config.run.checkpoint_file)

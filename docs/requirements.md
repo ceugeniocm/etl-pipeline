@@ -264,6 +264,21 @@ Legenda de status: **Não Iniciado**, **Em Andamento**, **Concluído**, **Adiado
 - **Prioridade**: Alta
 - **Status**: Concluído
 
+### FR-017 — Processamento Paralelo
+
+> **História de Usuário**
+> Como um usuário, quero que o pipeline utilize múltiplos núcleos do processador para que o processamento de grandes
+> volumes de dados seja concluído em menos tempo.
+
+**Critérios de Aceitação**
+
+> QUANDO um número de processos (workers) for configurado ENTÃO o sistema DEVE distribuir a transformação dos dados entre eles.
+> QUANDO o processamento paralelo estiver ativo ENTÃO a integridade da deduplicação DEVE ser preservada (usando o processo principal para centralizar o estado de unicidade).
+> QUANDO o sistema for executado em um ambiente com um único núcleo ENTÃO o sistema DEVE funcionar normalmente (fallback para sequencial).
+
+- **Prioridade**: Média
+- **Status**: Concluído
+
 ---
 
 ## Requisitos Não Funcionais

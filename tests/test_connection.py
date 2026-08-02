@@ -45,6 +45,7 @@ class TestConnection(unittest.TestCase):
             password="secret_password",
             database="prod_db",
             connect_timeout=10,
+            compress=True,
         )
 
     @patch("mysql.connector.connect")

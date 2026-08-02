@@ -298,6 +298,20 @@ Estender o orquestrador do pipeline para suportar o carregamento de múltiplas t
 
 ---
 
+## Grupo K — Paralelismo
+
+### K1. Suporte a workers na configuração
+Adicionar a chave `workers` em `RunConfig` para controlar o grau de paralelismo, com padrão `1` (sequencial).
+- **Requisitos**: FR-017
+- **Prioridade**: Média
+
+### K2. Transformação Paralela
+Refatorar o loop do pipeline para utilizar `ProcessPoolExecutor`. As etapas de mapeamento, limpeza e coerção de tipos de cada linha serão delegadas aos workers. A deduplicação e a carga permanecem no processo principal para evitar complexidade de estado compartilhado.
+- **Requisitos**: FR-017, NFR-001
+- **Prioridade**: Média
+
+---
+
 ## Grupo H — Testes e Garantia de Qualidade
 
 ### H1. Fixtures de teste
