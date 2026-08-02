@@ -6,6 +6,7 @@ nunca vazem nas mensagens de erro.
 """
 
 import logging
+import os
 import time
 from typing import Any, Protocol, runtime_checkable
 
@@ -33,6 +34,9 @@ class Cursor(Protocol):
         ...
 
     def fetchone(self) -> Any:
+        ...
+
+    def nextset(self) -> bool | None:
         ...
 
     def close(self) -> None:
@@ -111,3 +115,35 @@ def get_connection(config: DatabaseConfig) -> Connection:
         ),
         cause=last_error,
     )
+
+
+def execute_sql_script(conn: Connection, script_path: str) -> None:
+    """Executa um script SQL a partir de um arquivo (Tarefa adicionada).
+
+    :param conn: conexão ativa com o banco.
+    :param script_path: caminho para o arquivo .sql.
+    """
+    if not os.path.exists(script_path):
+        logger.warning(f"Script SQL não encontrado: {script_path}")
+        return
+
+    logger.info(f"Executando script SQL: {script_path}")
+    try:
+        with open(script_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        cursor = conn.cursor()
+        # No mysql-connector 9.x+, execute() suporta múltiplos statements por padrão.
+        # Devemos consumir todos os result sets usando nextset().
+        cursor.execute(content)
+        while cursor.nextset():
+            pass
+        cursor.close()
+        conn.commit()
+    except Exception as e:
+        logger.error(f"Erro ao executar script SQL {script_path}: {e}")
+        # Não relançamos para não interromper o pipeline se as tabelas já existirem
+        # ou se houver um erro menor, mas no nosso caso o script usa IF NOT EXISTS.
+        # No entanto, se o requisito for "deve ser realizado", talvez devêssemos relançar.
+        # Dada a descrição, parece ser uma etapa de preparação.
+        raise DatabaseConnectionError(f"Falha ao preparar banco de dados com {script_path}", cause=e)

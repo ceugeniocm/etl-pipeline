@@ -1,4 +1,4 @@
-CREATE TABLE tb_agendamentos (
+CREATE TABLE IF NOT EXISTS tb_agendamentos (
     -- Primary Key (Must NOT be NULL)
     id_agendamento BIGINT PRIMARY KEY NOT NULL,
 
@@ -105,13 +105,13 @@ CREATE TABLE tb_agendamentos (
     plano_descricao VARCHAR(255) NULL
 );
 
-CREATE TABLE tb_usuarios (
+CREATE TABLE IF NOT EXISTS tb_usuarios (
     -- Primary Key (Must NOT be NULL)
     id_usuario BIGINT PRIMARY KEY NOT NULL,
     nome_usuario VARCHAR(255) NULL
 );
 
-CREATE TABLE tb_beneficiarios (
+CREATE TABLE IF NOT EXISTS tb_beneficiarios (
     -- Primary Key (Must NOT be NULL)
     id_beneficiario BIGINT PRIMARY KEY NOT NULL,
     nomesocial VARCHAR(255) NULL,
@@ -134,7 +134,7 @@ CREATE TABLE tb_beneficiarios (
     numcarteira VARCHAR(255)  NULL
 );
 
-CREATE TABLE tb_profissionais (
+CREATE TABLE IF NOT EXISTS tb_profissionais (
     -- Primary Key (Must NOT be NULL)
     id_profissional BIGINT PRIMARY KEY NOT NULL,
     esp_id BIGINT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE tb_profissionais (
     corporativo VARCHAR(255) NULL
 );
 
-CREATE TABLE tb_especialidades (
+CREATE TABLE IF NOT EXISTS tb_especialidades (
     -- Primary Key (Must NOT be NULL)
     id_especialidade BIGINT PRIMARY KEY NOT NULL,
     descricao VARCHAR(255) NULL,

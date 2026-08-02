@@ -93,8 +93,8 @@ class TestPipeline(unittest.TestCase):
         self.assertTrue(success)
         self.assertEqual(pipeline.stats.loaded, 4)
         
-        # Com chunk_size=10 e 4 linhas válidas no mesmo bloco, temos 1 commit final
-        self.assertEqual(conn.committed, 1)
+        # 1 commit para o script create_tables.sql + 1 commit para os dados
+        self.assertEqual(conn.committed, 2)
         
         # Verifica se as queries foram geradas corretamente
         executed_sqls = [sql for sql, _ in conn.cursor_instance.executed]

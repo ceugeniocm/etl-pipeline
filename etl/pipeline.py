@@ -17,7 +17,7 @@ from etl.checkpoint import delete_checkpoint, load_checkpoint, save_checkpoint
 from etl.config import DimensionConfig, EtlConfig, MappingConfig, ValidationConfig
 from etl.errors import EtlError, RejectionThresholdExceeded
 from etl.extract import SourceRow, iter_chunks, open_source
-from etl.load.connection import get_connection
+from etl.load.connection import execute_sql_script, get_connection
 from etl.load.loader import Loader
 from etl.reporting import (
     ExecutionStats,
@@ -127,6 +127,9 @@ class Pipeline:
                 if not self.config.run.dry_run:
                     conn = get_connection(self.config.database)
                     
+                    # Criação das tabelas (Tarefa: script create_tables.sql)
+                    execute_sql_script(conn, "create_tables.sql")
+
                     # Loader principal
                     loader = Loader(
                         conn,

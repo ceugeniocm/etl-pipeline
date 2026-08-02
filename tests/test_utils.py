@@ -52,12 +52,25 @@ class FakeCursor:
         self.executed: list[tuple[str, Any]] = []
         self.table_columns = table_columns or []
         self._results = []
+        self._nextsets = 0
 
     def execute(self, sql: str, params: Any = None):
         self.executed.append((sql, params))
         if "DESCRIBE" in sql:
             # Extrai o nome da tabela do DESCRIBE `tabela`
             self._results = [[col] for col in self.table_columns]
+        
+        # Simula múltiplos statements para testes de script SQL
+        if sql and ";" in sql:
+            self._nextsets = sql.count(";")
+            if sql.rstrip().endswith(";"):
+                self._nextsets -= 1
+
+    def nextset(self):
+        if self._nextsets > 0:
+            self._nextsets -= 1
+            return True
+        return False
 
     def executemany(self, sql: str, seq_params: Any):
         self.executed.append((sql, seq_params))
