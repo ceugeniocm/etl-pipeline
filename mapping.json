@@ -2,6 +2,7 @@
   "columns": {
     "TIPOAGENDA": "tipoagenda",
     "AG_ID": "id_agendamento",
+
     "AGM_ID": "agm_id",
     "AG_PENDENTE": "ag_pendente",
     "AG_DTHORAAGENDA": "ag_dthoraagenda",
@@ -173,14 +174,14 @@
     "benef_temporario": "int",
     "benef_bairro": "str",
     "benef_dddresid": "int",
-    "benef_resid": "int",
-    "benef_dddcelular": "int",
-    "benef_celular": "int",
+    "benef_resid": "str",
+    "benef_dddcelular": "str",
+    "benef_celular": "str",
     "benef_dddcomercial": "str",
     "benef_comercial": "str",
     "reg_descricao": "str",
     "benef_id_externo": "int",
-    "benef_numcarteira": "float",
+    "benef_numcarteira": "str",
     "plano_id": "int",
     "agp_idexterno": "int",
     "ec_tipocontratado": "str",
@@ -205,5 +206,182 @@
       "trim",
       "upper"
     ]
-  }
+  },
+  "dimensions": [
+    {
+      "mapping": {
+        "columns": {
+          "BENEF_ID": "id_beneficiario",
+          "BENEF_NOMESOCIAL": "nomesocial",
+          "BENEF_NOMEAFETIVO": "nomeafetivo",
+          "PACIENTE_NOME": "nomepaciente",
+          "BENEF_DTNASC": "dtnasc",
+          "BENEF_CNS": "cns",
+          "BENEF_CPF": "cpf",
+          "BENEF_RN": "rn",
+          "BENEF_SEXO": "sexo",
+          "BENEF_TEMPORARIO": "temporario",
+          "BENEF_BAIRRO": "bairro",
+          "BENEF_DDDRESID": "dddresid",
+          "BENEF_RESID": "resid",
+          "BENEF_DDDCELULAR": "dddcelular",
+          "BENEF_CELULAR": "celular",
+          "BENEF_DDDCOMERCIAL": "dddcomercial",
+          "BENEF_COMERCIAL": "comercial",
+          "REG_DESCRICAO": "descricao",
+          "BENEF_NUMCARTEIRA": "numcarteira"
+        },
+        "types": {
+          "id_beneficiario": "int",
+          "dtnasc": "datetime",
+          "cpf": "str",
+          "rn": "int",
+          "temporario": "int",
+          "dddresid": "str",
+          "resid": "str",
+          "dddcelular": "str",
+          "celular": "str",
+          "numcarteira": "str"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_beneficiario"
+        ]
+      },
+      "load": {
+        "table": "tb_beneficiarios",
+        "mode": "truncate",
+        "unique_key": [
+          "id_beneficiario"
+        ]
+      }
+    },
+    {
+      "mapping": {
+        "columns": {
+          "ESP_ID": "id_especialidade",
+          "ESP_DESCRICAO": "descricao",
+          "ESP_CORPORATIVO": "corporativo",
+          "ESP_CMED": "cmed"
+        },
+        "types": {
+          "id_especialidade": "int",
+          "corporativo": "int"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_especialidade"
+        ]
+      },
+      "load": {
+        "table": "tb_especialidades",
+        "mode": "truncate",
+        "unique_key": [
+          "id_especialidade"
+        ]
+      }
+    },
+    {
+      "mapping": {
+        "columns": {
+          "PROF_ID": "id_profissional",
+          "ESP_ID": "esp_id",
+          "PROF_NOME": "nome",
+          "PROF_CONSELHONUM": "conselhonum",
+          "PROF_CONSELHOUF": "conselhouf",
+          "PROF_SEXO": "sexo",
+          "PROF_STATUS": "status",
+          "PROF_CORPORATIVO": "corporativo"
+        },
+        "types": {
+          "id_profissional": "int",
+          "esp_id": "int",
+          "status": "int"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_profissional"
+        ]
+      },
+      "load": {
+        "table": "tb_profissionais",
+        "mode": "truncate",
+        "unique_key": [
+          "id_profissional"
+        ]
+      }
+    },
+    {
+      "mapping": {
+        "columns": {
+          "AG_USERIDAGENDOU": "id_usuario",
+          "NOMEUSERAGENDOU": "nome_usuario"
+        },
+        "types": {
+          "id_usuario": "int"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_usuario"
+        ]
+      },
+      "load": {
+        "table": "tb_usuarios",
+        "mode": "truncate",
+        "unique_key": [
+          "id_usuario"
+        ]
+      }
+    },
+    {
+      "mapping": {
+        "columns": {
+          "AG_USERIDCANCEL": "id_usuario",
+          "NOMEUSERCANCEL": "nome_usuario"
+        },
+        "types": {
+          "id_usuario": "int"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_usuario"
+        ]
+      },
+      "load": {
+        "table": "tb_usuarios",
+        "mode": "upsert",
+        "unique_key": [
+          "id_usuario"
+        ]
+      }
+    },
+    {
+      "mapping": {
+        "columns": {
+          "AG_USERIDTRANSF": "id_usuario",
+          "NOMEUSERTRANS": "nome_usuario"
+        },
+        "types": {
+          "id_usuario": "int"
+        }
+      },
+      "validation": {
+        "required": [
+          "id_usuario"
+        ]
+      },
+      "load": {
+        "table": "tb_usuarios",
+        "mode": "upsert",
+        "unique_key": [
+          "id_usuario"
+        ]
+      }
+    }
+  ]
 }

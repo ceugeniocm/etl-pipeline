@@ -910,7 +910,7 @@ def load_config(
 
     if isinstance(raw, Mapping):
         # Se a seção 'mapping' for uma string, carregamos o mapeamento do arquivo
-        # indicado (FR-011, eliminando redundância entre config.json e full_mapping.json).
+        # indicado (FR-011, eliminando redundância entre config.json e mapping.json).
         mapping_ref = raw.get("mapping")
         if isinstance(mapping_ref, str):
             mapping_path = os.path.join(
@@ -918,7 +918,12 @@ def load_config(
             )
             try:
                 with open(mapping_path, encoding="utf-8") as m_handle:
-                    raw["mapping"] = json.load(m_handle)
+                    m_data = json.load(m_handle)
+                    raw["mapping"] = m_data
+                    # Se o mapeamento externo contiver 'dimensions', movemos para a raiz (FR-011).
+                    if isinstance(m_data, Mapping) and "dimensions" in m_data:
+                        if "dimensions" not in raw:
+                            raw["dimensions"] = m_data.pop("dimensions")
             except FileNotFoundError as error:
                 raise ConfigError(
                     messages.ERR_CONFIG_FILE_NOT_FOUND.format(path=mapping_path),
