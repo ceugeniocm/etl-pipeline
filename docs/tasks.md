@@ -25,7 +25,7 @@ Mark a task complete by changing `[ ]` to `[x]`.
   — *Plan: A5 · Req: FR-013*
 - [x] **7.** Add a logging filter/formatter that redacts password-like values from every log record.
   — *Plan: A5 · Req: NFR-004, FR-013*
-- [x] **8.** Write `test_logging_setup.py` asserting level handling, file output and password redaction.
+- [x] **8.** Write `../tests/test_logging_setup.py` asserting level handling, file output and password redaction.
   — *Plan: H2, H5 · Req: FR-013, NFR-004, NFR-005*
 
 > **Phase 1 notes**
@@ -49,7 +49,7 @@ Mark a task complete by changing `[ ]` to `[x]`.
   `ConfigError` naming the offending key in `pt_BR`, executed before any file or database access.
   — *Plan: B3 · Req: FR-011, NFR-003*
 - [x] **13.** Define and document default values for chunk size and batch size. — *Plan: B3 · Req: FR-002, FR-009*
-- [x] **14.** Write `test_config.py` covering parsing, env overrides, defaults and each invalid-key error.
+- [x] **14.** Write `../tests/test_config.py` covering parsing, env overrides, defaults and each invalid-key error.
   — *Plan: H2 · Req: FR-011, NFR-005*
 
 > **Phase 2 notes**
@@ -79,7 +79,7 @@ Mark a task complete by changing `[ ]` to `[x]`.
   — *Plan: C2 · Req: FR-002, NFR-001*
 - [x] **19.** Implement source error handling for missing path, unreadable/corrupt workbook, unsupported
   extension, missing sheet and empty sheet, raising `ExtractionError`. — *Plan: C3 · Req: FR-001, NFR-007*
-- [x] **20.** Write `test_extract.py` with generated fixtures covering happy path, chunk boundaries, header
+- [x] **20.** Write `../tests/test_extract.py` with generated fixtures covering happy path, chunk boundaries, header
   derivation and every error case. — *Plan: H1, H2 · Req: FR-001, FR-002, NFR-005*
 - [x] **21.** Add legacy `.xls` support behind the same iterator interface, or an explicit unsupported-format
   error when the dependency is absent. — *Plan: C4 · Req: FR-001*
@@ -132,8 +132,8 @@ Mark a task complete by changing `[ ]` to `[x]`.
   when the configured absolute/percentage limit is crossed. — *Plan: D5 · Req: FR-006*
 - [x] **32.** Implement business-key deduplication in `etl/transform/dedup.py` with a memory-bounded seen-key
   set, and a no-op path when no key is configured. — *Plan: D6 · Req: FR-007, NFR-001*
-- [x] **33.** Write `test_mapping.py`, `test_cleaning.py`, `test_types.py`, `test_validation.py` and
-  `test_dedup.py` covering happy paths and every rejection reason. — *Plan: H2 · Req: FR-003…FR-007, NFR-005*
+- [x] **33.** Write `../tests/test_mapping.py`, `../tests/test_cleaning.py`, `../tests/test_types.py`, `../tests/test_validation.py` and
+  `../tests/test_dedup.py` covering happy paths and every rejection reason. — *Plan: H2 · Req: FR-003…FR-007, NFR-005*
 
 ## Phase 5 — Loading
 
@@ -156,7 +156,7 @@ Mark a task complete by changing `[ ]` to `[x]`.
   — *Plan: E6 · Req: FR-010, FR-015*
 - [x] **44.** Build the fake connection/cursor test double recording executed statements and parameters.
   — *Plan: H1 · Req: NFR-005*
-- [x] **45.** Write `test_connection.py` and `test_loader.py` covering retries, pre-flight checks, batching,
+- [x] **45.** Write `../tests/test_connection.py` and `../tests/test_loader.py` covering retries, pre-flight checks, batching,
   commit/rollback and all three load modes. — *Plan: H2 · Req: FR-008…FR-010, NFR-003, NFR-005*
 
 ## Phase 6 — Orchestration, CLI and Reporting
@@ -176,14 +176,14 @@ Mark a task complete by changing `[ ]` to `[x]`.
   failure. — *Plan: F5 · Req: FR-014, NFR-007*
 - [x] **53.** Implement the CSV rejection-report writer (sheet, source row, column, reason) to the configured
   path. — *Plan: F6 · Req: FR-006, NFR-009*
-- [x] **54.** Write `test_cli.py` and `test_reporting.py` covering argument parsing, exit codes, dry-run,
+- [x] **54.** Write `../tests/test_cli.py` and `../tests/test_reporting.py` covering argument parsing, exit codes, dry-run,
   progress output and report contents. — *Plan: H2 · Req: FR-012, FR-014, NFR-005*
 
 ## Phase 7 — Testing and Quality Assurance
 
 - [x] **55.** Implement the fixture generator producing `.xlsx` workbooks with valid rows, bad types, missing
   required fields, duplicate keys and empty cells. — *Plan: H1 · Req: NFR-005*
-- [x] **56.** Write the end-to-end `test_pipeline.py` running a fixture workbook through the whole chain
+- [x] **56.** Write the end-to-end `../tests/test_pipeline.py` running a fixture workbook through the whole chain
   against the fake connection, asserting loaded/rejected counts and exit code. — *Plan: H3 · Req: NFR-005, NFR-003*
 - [x] **57.** Write the optional/slow memory test asserting bounded memory growth on a large generated file.
   — *Plan: H4 · Req: NFR-001*
@@ -213,5 +213,13 @@ Mark a task complete by changing `[ ]` to `[x]`.
   batch commit. — *Plan: G1 · Req: FR-015*
 - [x] **67.** Implement the `--resume` flag skipping source rows up to the recorded checkpoint.
   — *Plan: G2 · Req: FR-015*
-- [x] **68.** Write `test_checkpoint.py` covering checkpoint persistence, resume and the no-duplicate
+- [x] **68.** Write `../tests/test_checkpoint.py` covering checkpoint persistence, resume and the no-duplicate
   guarantee under `upsert`. — *Plan: H2 · Req: FR-015, NFR-005*
+
+## Phase 10 — Dimension Tables Loading
+
+- [x] **69.** Create configuration mappings for `tb_beneficiarios`, `tb_especialidades`, `tb_profissionais`, and `tb_usuarios`. — *Plan: J1 · Req: FR-016, FR-003*
+- [x] **70.** Implement logic to extract unique records for each dimension table from the source data. — *Plan: J2 · Req: FR-016, FR-007*
+- [x] **71.** Update the pipeline to sequence the loading of dimension tables before or alongside the main fact table. — *Plan: J3 · Req: FR-016*
+- [x] **72.** Add unit tests for the new dimension table loading logic, ensuring correct deduplication and mapping. — *Plan: H2 · Req: FR-016, NFR-005*
+- [x] **73.** Run integration tests to verify the full ETL process with multiple target tables. — *Plan: H3 · Req: FR-016, NFR-003*

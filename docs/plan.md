@@ -279,6 +279,25 @@ A `--resume` flag that reads the checkpoint and skips source rows up to the reco
 
 ---
 
+## Group J — Dimension Tables Loading
+
+### J1. Mapping for dimension tables
+Define column mappings for `tb_beneficiarios`, `tb_especialidades`, `tb_profissionais`, and `tb_usuarios` in the configuration, ensuring they map to the correct source columns.
+- **Requirements**: FR-003, FR-016
+- **Priority**: High
+
+### J2. Deduplication for dimension tables
+Ensure that data loaded into dimension tables is deduplicated based on their respective primary keys to maintain data integrity.
+- **Requirements**: FR-007, FR-016
+- **Priority**: High
+
+### J3. Orchestration of multi-table load
+Extend the pipeline orchestrator to support loading multiple tables in a single run or sequentially, according to the configuration.
+- **Requirements**: FR-016, F1
+- **Priority**: High
+
+---
+
 ## Group H — Testing and Quality Assurance
 
 ### H1. Test fixtures
@@ -288,14 +307,14 @@ keys, empty cells) plus a fake MySQL connection/cursor recording executed statem
 - **Priority**: High
 
 ### H2. Unit tests per module
-`test_config.py`, `test_extract.py`, `test_mapping.py`, `test_cleaning.py`, `test_types.py`,
-`test_validation.py`, `test_dedup.py`, `test_connection.py`, `test_loader.py`, `test_reporting.py`,
-`test_cli.py` — each covering happy path and the failure criteria of its requirements.
+`../tests/test_config.py`, `../tests/test_extract.py`, `../tests/test_mapping.py`, `../tests/test_cleaning.py`, `../tests/test_types.py`,
+`../tests/test_validation.py`, `../tests/test_dedup.py`, `../tests/test_connection.py`, `../tests/test_loader.py`, `../tests/test_reporting.py`,
+`../tests/test_cli.py` — each covering happy path and the failure criteria of its requirements.
 - **Requirements**: NFR-005, and the FR it covers
 - **Priority**: High
 
 ### H3. Integration test with fake database
-End-to-end `test_pipeline.py` running a fixture workbook through the whole chain against the fake
+End-to-end `../tests/test_pipeline.py` running a fixture workbook through the whole chain against the fake
 connection, asserting loaded/rejected counts and exit code.
 - **Requirements**: NFR-005, NFR-003, FR-001…FR-014
 - **Priority**: High
@@ -339,11 +358,11 @@ Update `docs/requirements.md` statuses and `docs/tasks.md` checkboxes as work la
 |---|---|
 | FR-001 | C1, C3, C4, F1, H2 |
 | FR-002 | B1, B3, C2, F1 |
-| FR-003 | B1, D1, E3, F1, H2 |
+| FR-003 | B1, D1, E3, F1, H2, J1 |
 | FR-004 | D2, F1, H2 |
 | FR-005 | D3, D4, F1, H2 |
 | FR-006 | B1, D4, D5, E5, F3, F6, H2 |
-| FR-007 | B1, D6, H2 |
+| FR-007 | B1, D6, H2, J2 |
 | FR-008 | A4, B1, E1, E2, H2 |
 | FR-009 | B1, B3, E4, E5, H2 |
 | FR-010 | B1, E3, E6, H2 |
@@ -352,9 +371,10 @@ Update `docs/requirements.md` statuses and `docs/tasks.md` checkboxes as work la
 | FR-013 | A5, B1, F4 |
 | FR-014 | A3, F4, F5 |
 | FR-015 | E6, G1, G2 |
+| FR-016 | J1, J2, J3 |
 | NFR-001 | C1, C2, D6, F1, H4 |
 | NFR-002 | E4, H4 |
-| NFR-003 | B3, E2, E3, E5, F1, H3 |
+| NFR-003 | B3, E2, E3, E5, F1, H3, J2 |
 | NFR-004 | A5, B2, E1, E4, H5 |
 | NFR-005 | E1, H1, H2, H3 |
 | NFR-006 | A1, A4, H6 |

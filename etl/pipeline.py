@@ -42,6 +42,24 @@ class Pipeline:
         self.reporter = RejectionReporter(config.run.rejection_report)
         self.threshold = RejectionThreshold(config.validation)
         self.deduplicator = Deduplicator(config.validation)
+        self.seen_by_table: dict[str, set[tuple[Any, ...]]] = {}
+        self.dimension_contexts = []
+        for dim in config.dimensions:
+            table = dim.load.table
+            if table not in self.seen_by_table:
+                self.seen_by_table[table] = set()
+            
+            self.dimension_contexts.append({
+                "config": dim,
+                "seen": self.seen_by_table[table],
+                "loader": None
+            })
+
+    def _get_unique_key_value(
+        self, data: dict[str, Any], unique_key: tuple[str, ...]
+    ) -> tuple[Any, ...]:
+        """Extrai os valores da chave única para deduplicação (FR-016)."""
+        return tuple(data.get(col) for col in unique_key)
 
     def run(self) -> bool:
         """Executa o pipeline completo (tarefa 47).
@@ -79,6 +97,8 @@ class Pipeline:
                 loader = None
                 if not self.config.run.dry_run:
                     conn = get_connection(self.config.database)
+                    
+                    # Loader principal
                     loader = Loader(
                         conn,
                         self.config.database,
@@ -88,9 +108,24 @@ class Pipeline:
                     loader.check_target()
                     loader.prepare()
 
+                    # Loaders de dimensões (Task 71)
+                    for dim_ctx in self.dimension_contexts:
+                        dim_loader = Loader(
+                            conn,
+                            self.config.database,
+                            dim_ctx["config"].load,
+                            dim_ctx["config"].mapping,
+                        )
+                        dim_loader.check_target()
+                        dim_loader.prepare()
+                        dim_ctx["loader"] = dim_loader
+
                 # 3. Iteração em blocos (lazy chain)
                 for chunk in iter_chunks(sheet.rows(), self.config.source.chunk_size):
                     batch_data: list[tuple[int, dict[str, Any]]] = []
+                    dimension_batches: list[list[tuple[int, dict[str, Any]]]] = [
+                        [] for _ in self.dimension_contexts
+                    ]
 
                     for row in chunk:
                         if last_row and row.number <= last_row:
@@ -98,7 +133,27 @@ class Pipeline:
 
                         self.stats.read += 1
 
-                        # Pipeline de transformação
+                        # Processamento de dimensões (Task 70)
+                        for i, dim_ctx in enumerate(self.dimension_contexts):
+                            dim_cfg = dim_ctx["config"]
+                            # Mapeamento e limpeza simplificados para dimensões
+                            d_mapped = apply_mapping(row, dim_cfg.mapping)
+                            d_cleaned = clean_row(d_mapped, dim_cfg.mapping)
+                            d_coerced = coerce_row(d_cleaned, dim_cfg.mapping)
+                            
+                            d_outcome = validate_row(
+                                d_coerced, dim_cfg.validation, row.sheet, row.number
+                            )
+                            
+                            if not isinstance(d_outcome, list): # Se passou na validação
+                                key = self._get_unique_key_value(
+                                    d_outcome, dim_cfg.load.unique_key
+                                )
+                                if all(v is not None for v in key) and key not in dim_ctx["seen"]:
+                                    dimension_batches[i].append((row.number, d_outcome))
+                                    dim_ctx["seen"].add(key)
+
+                        # Pipeline de transformação da fato
                         mapped = apply_mapping(row, self.config.mapping)
                         cleaned = clean_row(mapped, self.config.mapping)
                         coerced = coerce_row(cleaned, self.config.mapping)
@@ -137,6 +192,16 @@ class Pipeline:
                     # 4. Carga do lote (Task 38)
                     def save_cb(row_num: int) -> None:
                         save_checkpoint(self.config.run.checkpoint_file, row_num)
+
+                    # Carga das dimensões antes da fato (Task 71)
+                    for i, dim_ctx in enumerate(self.dimension_contexts):
+                        d_batch = dimension_batches[i]
+                        if d_batch:
+                            if dim_ctx["loader"]:
+                                dim_ctx["loader"].load_batch(d_batch)
+                            else:
+                                # Dry-run de dimensões
+                                pass
 
                     if loader and batch_data:
                         loaded, failed = loader.load_batch(batch_data, on_success=save_cb)

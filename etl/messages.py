@@ -214,6 +214,10 @@ INFO_DRY_RUN = (
     "Modo simulação ativado: nenhum dado será gravado no banco de dados."
 )
 INFO_LOAD_MODE = "Modo de carga: {mode}."
+INFO_DIMENSION_LOAD_STARTED = "Iniciando carga da tabela de dimensão '{table}'."
+INFO_DIMENSION_LOAD_FINISHED = (
+    "Carga da tabela de dimensão '{table}' finalizada: {count} registros."
+)
 INFO_TRUNCATING_TABLE = "Esvaziando a tabela de destino '{table}'."
 INFO_REJECTION_REPORT_WRITTEN = (
     "Relatório de rejeições gravado em: {path} ({count} registros)."

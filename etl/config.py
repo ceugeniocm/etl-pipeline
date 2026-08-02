@@ -67,6 +67,7 @@ __all__ = [
     "DatabaseConfig",
     "LoadConfig",
     "RunConfig",
+    "DimensionConfig",
     "EtlConfig",
     "load_config",
     "parse_config",
@@ -156,7 +157,7 @@ ENV_OVERRIDES = {
 _TRUE_VALUES = ("1", "true", "t", "yes", "y", "on", "sim", "s")
 _FALSE_VALUES = ("0", "false", "f", "no", "n", "off", "nao", "não")
 
-_SECTIONS = ("source", "mapping", "validation", "database", "load", "run")
+_SECTIONS = ("source", "mapping", "validation", "database", "load", "run", "dimensions")
 
 
 # --------------------------------------------------------------------------
@@ -241,6 +242,15 @@ class RunConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class DimensionConfig:
+    """Configuração para carga de uma tabela de dimensão (FR-016)."""
+
+    mapping: MappingConfig
+    validation: ValidationConfig
+    load: LoadConfig
+
+
+@dataclass(frozen=True, slots=True)
 class EtlConfig:
     """Configuração completa e já validada do pipeline."""
 
@@ -250,6 +260,7 @@ class EtlConfig:
     database: DatabaseConfig
     load: LoadConfig
     run: RunConfig
+    dimensions: list[DimensionConfig] = field(default_factory=list)
 
 
 # --------------------------------------------------------------------------
@@ -818,6 +829,40 @@ def parse_config(
     database = _parse_database(root.section("database"))
     logging_setup.register_secret(database.password)
 
+    dimensions: list[DimensionConfig] = []
+    dimensions_reader = root.section("dimensions")
+    # A seção 'dimensions' é opcional e deve ser uma lista de objetos
+    raw_dimensions = root.raw("dimensions")
+    if raw_dimensions:
+        if not isinstance(raw_dimensions, Sequence):
+            raise ConfigError(
+                messages.ERR_CONFIG_INVALID_VALUE.format(
+                    key="dimensions", reason="deve ser uma lista"
+                )
+            )
+        for i, raw_dim in enumerate(raw_dimensions):
+            if not isinstance(raw_dim, Mapping):
+                raise ConfigError(
+                    messages.ERR_CONFIG_INVALID_VALUE.format(
+                        key=f"dimensions[{i}]", reason="deve ser um objeto"
+                    )
+                )
+            dim_reader = _Reader(raw_dim, f"dimensions[{i}]", origins)
+            dim_reader.check_unknown_keys(("mapping", "validation", "load"))
+            
+            dim_mapping = _parse_mapping(dim_reader.section("mapping"))
+            dim_validation = _parse_validation(dim_reader.section("validation"))
+            dim_load = _parse_load(dim_reader.section("load"))
+            _check_column_references(dim_mapping, dim_validation, dim_load)
+            
+            dimensions.append(
+                DimensionConfig(
+                    mapping=dim_mapping,
+                    validation=dim_validation,
+                    load=dim_load,
+                )
+            )
+
     return EtlConfig(
         source=_parse_source(root.section("source")),
         mapping=mapping,
@@ -825,6 +870,7 @@ def parse_config(
         database=database,
         load=load,
         run=_parse_run(root.section("run")),
+        dimensions=dimensions,
     )
 
 

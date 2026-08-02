@@ -27,7 +27,7 @@ class TestPipeline(unittest.TestCase):
         self.addCleanup(self._dir.cleanup)
         self.workbook_path = os.path.join(self._dir.name, "test.xlsx")
         generate_fixture_workbook(self.workbook_path)
-        self.rejection_report = os.path.join(self._dir.name, "rejeicoes.csv")
+        self.rejection_report = os.path.join(self._dir.name, "../rejeicoes.csv")
         
         # Configuração padrão para os testes
         self.config = EtlConfig(

@@ -250,6 +250,20 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 - **Priority**: Low
 - **Status**: Completed
 
+### FR-016 — Loading related dimension tables
+
+> **User Story**
+> As a user, I want the pipeline to populate related dimension tables (beneficiaries, specialties, professionals, and users) from the same source file so that I have a normalized database for analysis.
+
+**Acceptance Criteria**
+
+> WHEN the pipeline runs THEN the system SHALL be able to extract and load data into `tb_beneficiarios`, `tb_especialidades`, `tb_profissionais`, and `tb_usuarios` according to their respective mappings.
+> WHEN loading dimension tables THEN the system SHALL perform deduplication based on their respective primary keys.
+> WHEN a dimension table load fails THEN the system SHALL report the error and handle it according to the `on_batch_error` configuration.
+
+- **Priority**: High
+- **Status**: Completed
+
 ---
 
 ## Non-Functional Requirements
@@ -407,6 +421,7 @@ Status legend: **Not Started**, **In Progress**, **Completed**, **Deferred**.
 | FR-013  | Logging                                | High     | Completed   |
 | FR-014  | Progress reporting and run summary     | Medium   | Completed   |
 | FR-015  | Restartability / idempotency           | Low      | Completed   |
+| FR-016  | Loading related dimension tables       | High     | Completed   |
 | NFR-001 | Memory efficiency                      | High     | Completed   |
 | NFR-002 | Throughput                             | Medium   | Completed   |
 | NFR-003 | Reliability and data integrity         | High     | Completed   |

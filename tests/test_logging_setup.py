@@ -89,7 +89,7 @@ class TestHandlers(LoggingSetupTestCase):
 
     def test_writes_to_log_file(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = os.path.join(directory, "etl.log")
+            path = os.path.join(directory, "../etl.log")
             self.configure(log_file=path)
             logging_setup.get_logger(__name__).info("gravado em arquivo")
             logging_setup.shutdown_logging()
@@ -99,7 +99,7 @@ class TestHandlers(LoggingSetupTestCase):
 
     def test_log_file_receives_the_same_record_as_the_console(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = os.path.join(directory, "etl.log")
+            path = os.path.join(directory, "../etl.log")
             self.configure(log_file=path)
             logging_setup.get_logger(__name__).warning("duplo destino")
             console = self.console_output()
@@ -282,7 +282,7 @@ class TestRedactionInLogOutput(LoggingSetupTestCase):
 
     def test_secret_reaching_the_log_file_is_redacted(self):
         with tempfile.TemporaryDirectory() as directory:
-            path = os.path.join(directory, "etl.log")
+            path = os.path.join(directory, "../etl.log")
             logging_setup.configure_logging(
                 level="DEBUG", log_file=path, stream=self.stream
             )
