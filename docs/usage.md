@@ -1,140 +1,166 @@
-# Usage Documentation
+# Documentação de Uso
 
-This document describes how to install, configure, and run the ETL pipeline.
+Este documento descreve como instalar, configurar e executar o pipeline de ETL.
 
-## Installation
+## Instalação
 
-### Prerequisites
-- Python 3.8 or higher.
-- Access to a MySQL database.
+### Pré-requisitos
+- Python 3.8 ou superior.
+- Acesso a um banco de dados MySQL.
 
-### Setup
-1. Clone the repository.
-2. Create and activate a virtual environment (optional but recommended):
+### Configuração
+1. Clone o repositório.
+2. Crie e ative um ambiente virtual (opcional, mas recomendado):
    ```bash
    python3 -m venv .venv
    source .venv/bin/activate
    ```
-3. Install dependencies:
+3. Instale as dependências:
    ```bash
    pip install -r requirements.txt
    ```
 
-## Basic Usage
+## Uso Básico
 
-The pipeline is executed via `main.py` using a configuration file:
+O pipeline é executado via `main.py` usando um arquivo de configuração:
 
 ```bash
 python3 main.py config.json
 ```
 
-## CLI Options
+## Execução com Docker
 
-The CLI supports several arguments that override the configuration file values:
+Você também pode executar o pipeline usando Docker para evitar a instalação de dependências locais.
 
-| Option | Description |
+### Usando Docker Compose (Recomendado para desenvolvimento)
+
+O projeto inclui um `docker-compose.yml` que sobe uma instância do MySQL e executa o pipeline automaticamente:
+
+```bash
+docker-compose up --build
+```
+
+### Usando Docker diretamente
+
+1. Construa a imagem:
+   ```bash
+   docker build -t etl-pipeline .
+   ```
+
+2. Execute o container:
+   ```bash
+   docker run --env-file .env etl-pipeline config.json
+   ```
+
+Para instruções detalhadas de configuração e deploy, consulte o [Guia de Deploy](deploy.md).
+
+## Opções da CLI
+
+A CLI suporta diversos argumentos que sobrepõem os valores do arquivo de configuração:
+
+| Opção | Descrição |
 |--------|-------------|
-| `config` | Path to the JSON configuration file (positional, required). |
-| `--source` | Path to the source Excel file (`.xlsx` or `.xls`). |
-| `--sheet` | Name of the sheet to read (defaults to the first sheet). |
-| `--table` | Name of the target MySQL table. |
-| `--chunk-size` | Number of rows to read per chunk (memory efficiency). |
-| `--batch-size` | Number of records to load per batch (performance). |
-| `--mode` | Load mode (`append`, `truncate`, `upsert`). |
-| `--log-level` | Logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). |
-| `--log-file` | Path to a file to save logs. |
-| `--dry-run` | Execute extraction, transformation, and validation without writing to the database. |
-| `--verbose` | Shortcut for `--log-level DEBUG`. |
-| `--resume` | Resume execution from the last recorded position in the checkpoint file. |
-| `--workers` | Number of parallel processes for transformation. |
-| `--help` | Show help message. |
+| `config` | Caminho para o arquivo de configuração JSON (posicional, obrigatório). |
+| `--source` | Caminho para o arquivo Excel de origem (`.xlsx` ou `.xls`). |
+| `--sheet` | Nome da aba (sheet) a ser lida (o padrão é a primeira aba). |
+| `--table` | Nome da tabela MySQL de destino. |
+| `--chunk-size` | Número de linhas a serem lidas por bloco (eficiência de memória). |
+| `--batch-size` | Número de registros a serem carregados por lote (performance). |
+| `--mode` | Modo de carga (`append`, `truncate`, `upsert`). |
+| `--log-level` | Nível de log (`DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). |
+| `--log-file` | Caminho para um arquivo para salvar os logs. |
+| `--dry-run` | Executa a extração, transformação e validação sem gravar no banco de dados. |
+| `--verbose` | Atalho para `--log-level DEBUG`. |
+| `--resume` | Retoma a execução a partir da última posição registrada no arquivo de checkpoint. |
+| `--workers` | Número de processos paralelos para a transformação. |
+| `--help` | Mostra a mensagem de ajuda. |
 
-## Configuration File
+## Arquivo de Configuração
 
-The configuration is a JSON file with the following sections:
+A configuração é um arquivo JSON com as seguintes seções:
 
 ### `source`
-- `path` (string, required): Path to the Excel file.
-- `sheet` (string, optional): Sheet name.
-- `header_row` (integer, optional): 1-based index of the header row (default: 1).
-- `chunk_size` (integer, optional): Rows per chunk (default: 5000).
+- `path` (string, obrigatório): Caminho para o arquivo Excel.
+- `sheet` (string, opcional): Nome da aba.
+- `header_row` (integer, opcional): Índice (baseado em 1) da linha de cabeçalho (padrão: 1).
+- `chunk_size` (integer, opcional): Linhas por bloco (padrão: 5000).
 
 ### `mapping`
-- `columns` (object, required): Map of source column names to target database column names.
-- `types` (object, optional): Map of target column names to types (`str`, `int`, `decimal`, `float`, `bool`, `date`, `datetime`).
-- `normalizers` (object, optional): Map of target column names to lists of normalizers (`trim`, `upper`, `lower`, `strip_punctuation`, `collapse_spaces`).
+- `columns` (object, obrigatório): Mapeamento dos nomes das colunas de origem para os nomes das colunas do banco de dados de destino.
+- `types` (object, opcional): Mapeamento dos nomes das colunas de destino para tipos (`str`, `int`, `decimal`, `float`, `bool`, `date`, `datetime`).
+- `normalizers` (object, opcional): Mapeamento dos nomes das colunas de destino para listas de normalizadores (`trim`, `upper`, `lower`, `strip_punctuation`, `collapse_spaces`).
 
 ### `validation`
-- `required` (array, optional): List of target column names that must not be null.
-- `ranges` (object, optional): Map of target column names to `{ "minimum": X, "maximum": Y }`.
-- `max_lengths` (object, optional): Map of target column names to maximum string length.
-- `rejection_threshold` (string or integer, optional): Max absolute number of rejected rows (e.g., `100`) or percentage (e.g., `"5%"`).
-- `business_key` (array, optional): List of target columns forming a business key for deduplication.
-- `on_duplicate` (string, optional): Action for duplicate business keys (`discard` or `report`). Default: `discard`.
+- `required` (array, opcional): Lista de nomes de colunas de destino que não podem ser nulas.
+- `ranges` (object, opcional): Mapeamento de nomes de colunas de destino para `{ "minimum": X, "maximum": Y }`.
+- `max_lengths` (object, opcional): Mapeamento de nomes de colunas de destino para o comprimento máximo da string.
+- `rejection_threshold` (string ou integer, opcional): Número máximo absoluto de linhas rejeitadas (ex: `100`) ou porcentagem (ex: `"5%"`).
+- `business_key` (array, opcional): Lista de colunas de destino que formam uma chave de negócio para deduplicação.
+- `on_duplicate` (string, opcional): Ação para chaves de negócio duplicadas (`discard` ou `report`). Padrão: `discard`.
 
 ### `database`
-- `host` (string, required): MySQL host.
-- `port` (integer, optional): MySQL port (default: 3306).
-- `database` (string, required): Database name.
-- `user` (string, required): Database user.
-- `password` (string, optional): Database password.
-- `connect_retries` (integer, optional): Connection retry attempts (default: 3).
-- `retry_backoff_seconds` (float, optional): Initial backoff in seconds (default: 1.0).
+- `host` (string, obrigatório): Host do MySQL.
+- `port` (integer, opcional): Porta do MySQL (padrão: 3306).
+- `database` (string, obrigatório): Nome do banco de dados.
+- `user` (string, obrigatório): Usuário do banco de dados.
+- `password` (string, opcional): Senha do banco de dados.
+- `connect_retries` (integer, opcional): Tentativas de reconexão (padrão: 3).
+- `retry_backoff_seconds` (float, opcional): Backoff inicial em segundos (padrão: 1.0).
 
 ### `load`
-- `table` (string, required): Target table name.
-- `mode` (string, optional): Load mode (`append`, `truncate`, `upsert`). Default: `append`.
-- `batch_size` (integer, optional): Records per batch (default: 1000).
-- `unique_key` (array, optional): Columns for `ON DUPLICATE KEY UPDATE` in `upsert` mode.
-- `on_batch_error` (string, optional): Action on batch failure (`isolate` or `abort`). Default: `isolate`.
+- `table` (string, obrigatório): Nome da tabela de destino.
+- `mode` (string, opcional): Modo de carga (`append`, `truncate`, `upsert`). Padrão: `append`.
+- `batch_size` (integer, opcional): Registros por lote (padrão: 1000).
+- `unique_key` (array, opcional): Colunas para `ON DUPLICATE KEY UPDATE` no modo `upsert`.
+- `on_batch_error` (string, opcional): Ação em caso de falha no lote (`isolate` ou `abort`). Padrão: `isolate`.
 
 ### `run`
-- `log_level` (string, optional): Default: `INFO`.
-- `log_file` (string, optional): Path to log file.
-- `rejection_report` (string, optional): Path to CSV rejection report (default: `rejeicoes.csv`).
-- `checkpoint_file` (string, optional): Path to the JSON checkpoint file (default: `checkpoint.json`).
-- `dry_run` (boolean, optional): Default: `false`.
-- `resume` (boolean, optional): Default: `false`.
-- `workers` (integer, optional): Number of parallel processes (default: 1).
+- `log_level` (string, opcional): Padrão: `INFO`.
+- `log_file` (string, opcional): Caminho para o arquivo de log.
+- `rejection_report` (string, opcional): Caminho para o relatório de rejeição CSV (padrão: `rejeicoes.csv`).
+- `checkpoint_file` (string, opcional): Caminho para o arquivo de checkpoint JSON (padrão: `checkpoint.json`).
+- `dry_run` (boolean, opcional): Padrão: `false`.
+- `resume` (boolean, opcional): Padrão: `false`.
+- `workers` (integer, opcional): Número de processos paralelos (padrão: 1).
 
-## Environment Variables
+## Variáveis de Ambiente
 
-Environment variables can be used to override configuration values. They take precedence over the JSON file.
+Variáveis de ambiente podem ser usadas para sobrepor os valores de configuração. Elas têm precedência sobre o arquivo JSON.
 
-- `ETL_DB_PASSWORD`: Database password.
-- `ETL_DB_USER`: Database user.
-- `ETL_DB_HOST`: Database host.
-- `ETL_DB_PORT`: Database port.
-- `ETL_DB_NAME`: Database name.
-- `ETL_SOURCE_PATH`: Source file path.
-- `ETL_LOAD_TABLE`: Target table name.
-- `ETL_LOG_LEVEL`: Log level.
-- `ETL_DRY_RUN`: Enable dry run (`true`/`1`).
-- `ETL_RESUME`: Enable resume mode (`true`/`1`).
-- `ETL_CHECKPOINT_FILE`: Path to the checkpoint file.
-- `ETL_WORKERS`: Number of parallel processes.
+- `ETL_DB_PASSWORD`: Senha do banco de dados.
+- `ETL_DB_USER`: Usuário do banco de dados.
+- `ETL_DB_HOST`: Host do banco de dados.
+- `ETL_DB_PORT`: Porta do banco de dados.
+- `ETL_DB_NAME`: Nome do banco de dados.
+- `ETL_SOURCE_PATH`: Caminho do arquivo de origem.
+- `ETL_LOAD_TABLE`: Nome da tabela de destino.
+- `ETL_LOG_LEVEL`: Nível de log.
+- `ETL_DRY_RUN`: Habilita dry run (`true`/`1`).
+- `ETL_RESUME`: Habilita o modo de retomada (`true`/`1`).
+- `ETL_CHECKPOINT_FILE`: Caminho para o arquivo de checkpoint.
+- `ETL_WORKERS`: Número de processos paralelos.
 
-## Load Modes
+## Modos de Carga
 
-| Mode | Description |
+| Modo | Descrição |
 |------|-------------|
-| `append` | Inserts rows into the target table. Does not affect existing data. |
-| `truncate` | Deletes all data from the target table before starting the load. |
-| `upsert` | Updates existing rows if a unique key matches, otherwise inserts. Requires `unique_key` to be configured. |
+| `append` | Insere linhas na tabela de destino. Não afeta os dados existentes. |
+| `truncate` | Exclui todos os dados da tabela de destino antes de iniciar a carga. |
+| `upsert` | Atualiza as linhas existentes se uma chave única coincidir, caso contrário, insere. Requer que `unique_key` esteja configurado. |
 
-## Exit Codes
+## Códigos de Saída (Exit Codes)
 
-The application returns the following exit codes:
+A aplicação retorna os seguintes códigos de saída:
 
-| Code | Meaning |
+| Código | Significado |
 |------|---------|
 | 0 | SUCCESS |
 | 1 | UNEXPECTED_ERROR |
-| 2 | CONFIG_ERROR (Invalid or missing configuration) |
-| 3 | EXTRACTION_ERROR (Failed to read source file) |
-| 4 | MAPPING_ERROR (Mapping inconsistent with header) |
-| 5 | VALIDATION_ERROR (Structural validation failure) |
-| 6 | REJECTION_THRESHOLD (Rejection limit reached) |
-| 7 | DATABASE_CONNECTION_ERROR (Failed to connect to MySQL) |
-| 8 | LOAD_ERROR (Failed to write to database) |
-| 70 | NOT_IMPLEMENTED (Feature not yet implemented) |
+| 2 | CONFIG_ERROR (Configuração inválida ou ausente) |
+| 3 | EXTRACTION_ERROR (Falha ao ler o arquivo de origem) |
+| 4 | MAPPING_ERROR (Mapeamento inconsistente com o cabeçalho) |
+| 5 | VALIDATION_ERROR (Falha na validação estrutural) |
+| 6 | REJECTION_THRESHOLD (Limite de rejeição atingido) |
+| 7 | DATABASE_CONNECTION_ERROR (Falha ao conectar ao MySQL) |
+| 8 | LOAD_ERROR (Falha ao gravar no banco de dados) |
+| 70 | NOT_IMPLEMENTED (Funcionalidade ainda não implementada) |

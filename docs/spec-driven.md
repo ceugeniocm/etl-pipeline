@@ -1,40 +1,40 @@
-# Spec-Driven Development
-- The methodology is development step by step, following the Spec-Driven Development (SDD) approach.
+# Desenvolvimento Baseado em Especificações (Spec-Driven Development)
+- A metodologia é o desenvolvimento passo a passo, seguindo a abordagem de Desenvolvimento Baseado em Especificações (SDD - Spec-Driven Development).
 
-## Scope of this step:
-- Based on `docs/vision.md` and `.junie/AGENTS.md`;
+## Escopo desta etapa:
+- Baseado em `docs/vision.md` e `.junie/AGENTS.md`;
   
-### 1. Create or Update `docs/requirements.md`
-- Create or update high level requirements `docs/requirements.md` based on the scope described above.
-- The file contains functional requirements and not functional requirements as Markdown.
-- Each requirement has a unique id, a description (as a user story), a priority and a status.
+### 1. Criar ou Atualizar `docs/requirements.md`
+- Criar ou atualizar os requisitos de alto nível em `docs/requirements.md` com base no escopo descrito acima.
+- O arquivo contém requisitos funcionais e requisitos não funcionais no formato Markdown.
+- Cada requisito possui um id único, uma descrição (como uma user story), uma prioridade e um status.
 
-- Title: **Requirements Document**
-- Introduction: Summarize the Scope of this step: purpose and key functionality.
-- Requirements section:
-    - Use unique id (FR-XXX) for functional requirements, and (NFR-XXX) for non-functional requirements.
-    - Each requirement must include:
-        - **User Story** in the format:
-          > As a user, I want [goal] so that [benefit/reason]
+- Título: **Documento de Requisitos**
+- Introdução: Resumir o Escopo desta etapa: propósito e funcionalidades principais.
+- Seção de requisitos:
+    - Use um id único (FR-XXX) para requisitos funcionais e (NFR-XXX) para requisitos não funcionais.
+    - Cada requisito deve incluir:
+        - **User Story** no formato:
+          > Como um usuário, eu quero [objetivo] para que [benefício/razão]
 
-        - **Acceptance Criteria** in the format:
-          > WHEN [condition] THEN the system SHALL [expected behavior]
+        - **Acceptance Criteria** no formato:
+          > QUANDO [condição] ENTÃO o sistema DEVE [comportamento esperado]
     - Status: **Not Started**, **In Progress**, **Completed**, **Deferred**
 
-### 2. Create or Update `docs/plan.md`
-- Analyze `docs/requirements.md`.
-- Develop a **detailed implementation plan**:
-    - Link each plan item explicitly to the corresponding requirements.
-    - Assign priorities (e.g., High, Medium, Low).
-    - Group related plan items logically.
-- Ensure comprehensive coverage of all requirements.
+### 2. Criar ou Atualizar `docs/plan.md`
+- Analisar `docs/requirements.md`.
+- Desenvolver um **plano de implementação detalhado**:
+    - Vincular cada item do plano explicitamente aos requisitos correspondentes.
+    - Atribuir prioridades (ex: High, Medium, Low).
+    - Agrupar itens do plano relacionados de forma lógica.
+- Garantir a cobertura abrangente de todos os requisitos.
 
-### 3. Create or update `docs/tasks.md`
-- Based on the implementation plan in `docs/plan.md`, produce a **detailed enumerated technical task list**:
-    - Each task must have a placeholder `[ ]` to mark completion.
-    - Link each task both to:
-        - the development plan item in `docs/plan.md`
-        - the related requirement(s) in `docs/requirements.md`
-- Group tasks into **development phases**.
-- Organize phases logically (e.g., Setup → Core Features → Advanced Features → Testing & QA).  
+### 3. Criar ou atualizar `docs/tasks.md`
+- Com base no plano de implementação em `docs/plan.md`, produzir uma **lista de tarefas técnicas enumerada detalhada**:
+    - Cada tarefa deve ter um placeholder `[ ]` para marcar a conclusão.
+    - Vincular cada tarefa a:
+        - o item do plano de desenvolvimento em `docs/plan.md`
+        - o(s) requisito(s) relacionado(s) em `docs/requirements.md`
+- Agrupar tarefas em **fases de desenvolvimento**.
+- Organizar as fases logicamente (ex: Setup → Core Features → Advanced Features → Testing & QA).
 

@@ -7,5 +7,8 @@ openpyxl>=3.1,<4.0
 # Driver MySQL usado pela camada de carga (FR-008, FR-009).
 mysql-connector-python>=9.0,<10.0
 
-# Leitura de planilhas legadas .xls (FR-001, tarefa 21 de docs/tasks.md).
+# Carregamento de variáveis de ambiente de arquivos .env (NFR-011).
+python-dotenv>=1.0,<2.0
+
+# Leitura de planilhas legadas .xls (FR-011).
 xlrd>=2.0,<3.0

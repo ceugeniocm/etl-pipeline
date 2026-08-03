@@ -1,25 +1,26 @@
 # Big Data ETL Pipeline
 
-This project is a high-performance ETL pipeline designed to extract data from large Excel files (.xlsx, .xls), transform and validate it, and load it into a MySQL database.
+Este projeto é um pipeline de ETL de alta performance projetado para extrair dados de grandes arquivos Excel (.xlsx, .xls), transformá-los e validá-los, e carregá-los em um banco de dados MySQL.
 
-## Key Features
-- **Memory Efficient**: Uses streaming and chunked reads to handle millions of rows without high memory consumption.
-- **Robust Validation**: Configurable validation rules and rejection thresholds.
-- **Flexible Loading**: Supports `append`, `truncate`, and `upsert` modes with batching and retry logic.
-- **Observable**: Detailed logging and CSV rejection reports.
+## Principais Funcionalidades
+- **Eficiência de Memória**: Utiliza streaming e chunked reads para lidar com milhões de linhas sem alto consumo de memória.
+- **Validação Robusta**: Regras de validação configuráveis e rejection thresholds.
+- **Carregamento Flexível**: Suporta os modos `append`, `truncate` e `upsert` com lógica de batching e retry.
+- **Observabilidade**: Logging detalhado e relatórios de rejeição em CSV.
 
-## Quick Start
-1. Install dependencies:
+## Início Rápido
+1. Instale as dependências:
    ```bash
    pip install -r requirements.txt
    ```
-2. Run the pipeline with a configuration file:
+2. Execute o pipeline com um arquivo de configuração:
    ```bash
    python3 main.py config.json
    ```
 
-## Documentation
-For detailed information on installation, configuration, and usage, see [docs/usage.md](docs/usage.md).
+## Documentação
+Para informações detalhadas sobre instalação, configuração e uso, veja [docs/usage.md](docs/usage.md).
+Para instruções de deploy (Docker e Host), veja [docs/deploy.md](docs/deploy.md).
 
-## Requirements
-See [docs/requirements.md](docs/requirements.md) for the full specification.
+## Requisitos
+Veja [docs/requirements.md](docs/requirements.md) para a especificação completa.
