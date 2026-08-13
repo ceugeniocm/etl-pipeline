@@ -404,7 +404,7 @@ Equivalente ao `BatchLoader` do pipeline atual, com parâmetros de conexão mape
 jdbc_url = "jdbc:mysql://savir005.vpshost12372.mysql.dbaas.com.br:3306/savir005"
 
 jdbc_properties = {
-    "user": "savir005",
+    "user": "savir027",
     "password": "****",
     "driver": "com.mysql.cj.jdbc.Driver",
     "batchsize": "5000",           # equivalente ao batch_size=5000 do config.json
@@ -694,7 +694,7 @@ services:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: savir005
+      MYSQL_DATABASE: savir027
     ports:
       - "3306:3306"
     volumes:

@@ -1,155 +1,107 @@
-CREATE TABLE IF NOT EXISTS tb_agendamentos (
-    -- Primary Key (Must NOT be NULL)
-    id_agendamento BIGINT PRIMARY KEY NOT NULL,
-
-    -- ID Columns (BIGINT, Nullable)
-    agm_id BIGINT NULL,
-    tpa_id BIGINT NULL,
-    ag_useridcancel BIGINT NULL,
-    ag_useridtransf BIGINT NULL,
-    tbl_idcid BIGINT NULL,
-    cid_id BIGINT NULL,
-    sala_id BIGINT NULL,
-    ags_id BIGINT NULL,
-    ag_useridagendou BIGINT NULL,
-    prof_id BIGINT NULL,
-    esp_id BIGINT NULL,
-    tblproced_id BIGINT NULL,
-    benef_id BIGINT NULL,
-    benef_idmae BIGINT NULL,
-    benef_id_externo BIGINT NULL,
-    plano_id BIGINT NULL,
-    agp_idexterno BIGINT NULL,
-    ec_prof_idcontratado BIGINT NULL,
-    ec_cli_idcontratado BIGINT NULL,
-    ep_idprofissional BIGINT NULL,
-    respsolic_id BIGINT NULL,
-    cli_id BIGINT NULL,
-    super_id BIGINT NULL,
-
-    -- Other attributes (All Nullable)
-    tipoagenda INT NULL,
-    ag_pendente INT NULL,
-    ag_dthoraagenda TIMESTAMP NULL,
-    data_hora VARCHAR(255) NULL,
-    data TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
-    atd VARCHAR(255) NULL,
-    fim_atd VARCHAR(255) NULL,
-    status VARCHAR(255) NULL,
-    ag_tipoagendamento VARCHAR(255) NULL,
-    ag_duracaoproc VARCHAR(255) NULL,
-    ag_carateratend VARCHAR(255) NULL,
-    agendatempduracao INT NULL,
-    tipo_esp VARCHAR(255) NULL,
-    ag_dthoraatendimento TIMESTAMP NULL,
-    ag_dthoracancel TIMESTAMP NULL,
-    ag_dthoratransf TIMESTAMP NULL,
-    enviar_ws VARCHAR(255) NULL,
-    ag_obscancel TEXT NULL,
-    ag_profcronico VARCHAR(255) NULL,
-    tpa_descricao VARCHAR(255) NULL,
-    chg VARCHAR(255) NULL,
-    ag_tipoagenda VARCHAR(255) NULL,
-    ag_exameanterior VARCHAR(255) NULL,
-    conf_status VARCHAR(255) NULL,
-    ag_dthoraliberacao TIMESTAMP NULL,
-    ag_datahoraconfirmacao TIMESTAMP NULL,
-    ag_dthagendamento TIMESTAMP NULL,
-    agb_status VARCHAR(255) NULL,
-    agb_benefcronico VARCHAR(255) NULL,
-    agb_perfil VARCHAR(255) NULL,
-    agb_indicante VARCHAR(255) NULL,
-    prof_nome VARCHAR(255) NULL,
-    geral_conselhos_prof VARCHAR(255) NULL,
-    prof_conselhonum VARCHAR(255) NULL,
-    prof_conselhouf VARCHAR(10) NULL,
-    prof_sexo VARCHAR(50) NULL,
-    prof_status INT NULL,
-    prof_corporativo VARCHAR(255) NULL,
-    cod_tp_conselho VARCHAR(255) NULL,
-    esp_descricao VARCHAR(255) NULL,
-    esp_corporativo INT NULL,
-    esp_cmed VARCHAR(255) NULL,
-    agp_tipoconsulta VARCHAR(255) NULL,
-    proc_codigo INT NULL,
-    proc_amb VARCHAR(255) NULL,
-    proc_descricao VARCHAR(255) NULL,
-    valor NUMERIC(15, 2) NULL,
-    paciente_nome VARCHAR(255) NULL,
-    benef_nomesocial VARCHAR(255) NULL,
-    benef_nomeafetivo VARCHAR(255) NULL,
-    benef_dtnasc DATETIME NULL,
-    benef_cns VARCHAR(255) NULL,
-    benef_cpf VARCHAR(11)  NULL,
-    benef_rn INT NULL,
-    benef_sexo VARCHAR(1) NULL,
-    benef_temporario INT NULL,
-    benef_bairro VARCHAR(255) NULL,
-    benef_dddresid VARCHAR(10)  NULL,
-    benef_resid VARCHAR(50)  NULL,
-    benef_dddcelular VARCHAR(10)  NULL,
-    benef_celular VARCHAR(50)  NULL,
-    benef_dddcomercial VARCHAR(10) NULL,
-    benef_comercial VARCHAR(50) NULL,
-    reg_descricao VARCHAR(255) NULL,
-    benef_numcarteira VARCHAR(255)  NULL,
-    ec_tipocontratado VARCHAR(255) NULL,
-    cli_corporativo VARCHAR(255) NULL,
-    nomeuseragendou VARCHAR(255) NULL,
-    nomeusercancel VARCHAR(255) NULL,
-    nomeusertrans VARCHAR(255) NULL,
-    conv_sigla VARCHAR(50) NULL,
-    conv_cnpj BIGINT NULL,
-    conv_ans VARCHAR(255) NULL,
-    plano_corporativo INT NULL,
-    plano_descricao VARCHAR(255) NULL
-);
-
-CREATE TABLE IF NOT EXISTS tb_usuarios (
-    -- Primary Key (Must NOT be NULL)
-    id_usuario BIGINT PRIMARY KEY NOT NULL,
-    nome_usuario VARCHAR(255) NULL
-);
-
-CREATE TABLE IF NOT EXISTS tb_beneficiarios (
-    -- Primary Key (Must NOT be NULL)
-    id_beneficiario BIGINT PRIMARY KEY NOT NULL,
-    nomesocial VARCHAR(255) NULL,
-    nomeafetivo VARCHAR(255) NULL,
-    nomepaciente VARCHAR(255) NULL,
-    dtnasc DATETIME NULL,
-    cns VARCHAR(255) NULL,
-    cpf VARCHAR(11) NULL,
-    rn INT NULL,
-    sexo VARCHAR(1) NULL,
-    temporario INT NULL,
-    bairro VARCHAR(255) NULL,
-    dddresid VARCHAR(10) NULL,
-    resid VARCHAR(50) NULL,
-    dddcelular VARCHAR(50) NULL,
-    celular VARCHAR(50) NULL,
-    dddcomercial VARCHAR(10) NULL,
-    comercial VARCHAR(50) NULL,
-    descricao VARCHAR(255) NULL,
-    numcarteira VARCHAR(255)  NULL
-);
+DROP TABLE IF EXISTS tb_agendamentos;
+DROP TABLE IF EXISTS tb_tipos_agendamento;
+DROP TABLE IF EXISTS tb_cids;
+DROP TABLE IF EXISTS tb_salas;
+DROP TABLE IF EXISTS tb_clinicas;
+DROP TABLE IF EXISTS tb_planos;
+DROP TABLE IF EXISTS tb_convenios;
+DROP TABLE IF EXISTS tb_procedimentos;
+DROP TABLE IF EXISTS tb_beneficiarios;
+DROP TABLE IF EXISTS tb_especialidades;
+DROP TABLE IF EXISTS tb_profissionais;
+DROP TABLE IF EXISTS tb_usuarios;
 
 CREATE TABLE IF NOT EXISTS tb_profissionais (
-    -- Primary Key (Must NOT be NULL)
-    id_profissional BIGINT PRIMARY KEY NOT NULL,
-    esp_id BIGINT NULL,
-    nome VARCHAR(255) NULL,
-    conselhonum VARCHAR(255) NULL,
-    conselhouf VARCHAR(10) NULL,
-    sexo VARCHAR(50) NULL,
-    status INT NULL,
-    corporativo VARCHAR(255) NULL
+    prof_id BIGINT PRIMARY KEY,
+    prof_nome VARCHAR(150),
+    prof_conselhonum VARCHAR(20),
+    prof_conselhouf VARCHAR(2),
+    prof_sexo VARCHAR(1),
+    prof_status INT
 );
 
 CREATE TABLE IF NOT EXISTS tb_especialidades (
-    -- Primary Key (Must NOT be NULL)
-    id_especialidade BIGINT PRIMARY KEY NOT NULL,
-    descricao VARCHAR(255) NULL,
-    corporativo INT NULL,
-    cmed VARCHAR(255) NULL
+    esp_id BIGINT PRIMARY KEY,
+    esp_descricao VARCHAR(100),
+    esp_cmed INT
+);
+
+CREATE TABLE IF NOT EXISTS tb_beneficiarios (
+    benef_id BIGINT PRIMARY KEY,
+    benef_nome VARCHAR(150),
+    benef_dtnasc DATETIME,
+    benef_cpf VARCHAR(11),
+    benef_sexo VARCHAR(1),
+    benef_numcarteira VARCHAR(30)
+);
+
+CREATE TABLE IF NOT EXISTS tb_procedimentos (
+    tblproced_id BIGINT PRIMARY KEY,
+    proc_codigo BIGINT,
+    proc_descricao VARCHAR(200),
+    agp_valor DECIMAL(10,2)
+);
+
+CREATE TABLE IF NOT EXISTS tb_convenios (
+    conv_ans VARCHAR(20) PRIMARY KEY,
+    conv_sigla VARCHAR(30),
+    conv_cnpj VARCHAR(14)
+);
+
+CREATE TABLE IF NOT EXISTS tb_planos
+(
+    plano_id        BIGINT PRIMARY KEY,
+    plano_descricao VARCHAR(100),
+    conv_ans        VARCHAR(20),
+    FOREIGN KEY (conv_ans) REFERENCES tb_convenios (conv_ans) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tb_clinicas (
+    cli_id BIGINT PRIMARY KEY,
+    cli_corporativo INT
+);
+
+CREATE TABLE IF NOT EXISTS tb_salas (
+    sala_id BIGINT PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS tb_cids (
+    tbl_idcid BIGINT PRIMARY KEY,
+    cid_id BIGINT
+);
+
+CREATE TABLE IF NOT EXISTS tb_tipos_agendamento (
+    tpa_id BIGINT PRIMARY KEY,
+    tpa_descricao VARCHAR(100)
+);
+
+CREATE TABLE IF NOT EXISTS tb_usuarios (
+    user_id BIGINT PRIMARY KEY,
+    nome VARCHAR(150)
+);
+
+CREATE TABLE IF NOT EXISTS tb_agendamentos (
+    ag_id BIGINT PRIMARY KEY,
+    prof_id BIGINT,
+    esp_id BIGINT,
+    benef_id BIGINT,
+    tblproced_id BIGINT,
+    plano_id BIGINT,
+    cli_id BIGINT,
+    sala_id BIGINT,
+    tpa_id BIGINT,
+    tbl_idcid BIGINT,
+    user_id BIGINT,
+    dthoraagenda DATETIME,
+    ag_statusagendamento VARCHAR(1),
+    FOREIGN KEY (prof_id) REFERENCES tb_profissionais(prof_id),
+    FOREIGN KEY (esp_id) REFERENCES tb_especialidades(esp_id),
+    FOREIGN KEY (benef_id) REFERENCES tb_beneficiarios(benef_id),
+    FOREIGN KEY (tblproced_id) REFERENCES tb_procedimentos(tblproced_id),
+    FOREIGN KEY (plano_id) REFERENCES tb_planos(plano_id),
+    FOREIGN KEY (cli_id) REFERENCES tb_clinicas(cli_id),
+    FOREIGN KEY (sala_id) REFERENCES tb_salas(sala_id),
+    FOREIGN KEY (tpa_id) REFERENCES tb_tipos_agendamento(tpa_id),
+    FOREIGN KEY (tbl_idcid) REFERENCES tb_cids(tbl_idcid),
+    FOREIGN KEY (user_id) REFERENCES tb_usuarios(user_id)
 );

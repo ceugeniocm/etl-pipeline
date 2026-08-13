@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mysql://savir005.vpshost12372.mysql.dbaas.com.br:3306/</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="@savir027.vpshost12372.mysql.dbaas.com.br [2]" uuid="d2327b7b-80e7-4f6d-8272-ff4cad4a6f7d">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://savir027.vpshost12372.mysql.dbaas.com.br:3306/savir027</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

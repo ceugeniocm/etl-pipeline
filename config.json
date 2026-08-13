@@ -25,11 +25,11 @@
     "on_duplicate": "report"
   },
   "database": {
-    "host": "savir005.vpshost12372.mysql.dbaas.com.br",
+    "host": "savir027.vpshost12372.mysql.dbaas.com.br",
     "port": 3306,
-    "database": "savir005",
-    "user": "savir005",
-    "password": "Carlos#2025",
+    "database": "savir027",
+    "user": "savir027",
+    "password": "Rene#2019",
     "connect_retries": 3,
     "retry_backoff_seconds": 1.0
   },
