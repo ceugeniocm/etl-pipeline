@@ -12,7 +12,10 @@
       "prof_id",
       "esp_id",
       "benef_id",
-      "tblproced_id"
+      "tblproced_id",
+      "plano_id",
+      "cli_id",
+      "user_id"
     ],
     "ranges": {
     },

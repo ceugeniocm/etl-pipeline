@@ -161,7 +161,7 @@
         }
       },
       "validation": {
-        "required": ["plano_id"]
+        "required": ["plano_id", "conv_ans", "plano_descricao"]
       },
       "load": {
         "table": "tb_planos",
@@ -181,7 +181,7 @@
         }
       },
       "validation": {
-        "required": ["cli_id"]
+        "required": ["cli_id", "cli_corporativo"]
       },
       "load": {
         "table": "tb_clinicas",
@@ -219,7 +219,7 @@
         }
       },
       "validation": {
-        "required": ["tbl_idcid"]
+        "required": ["tbl_idcid", "cid_id"]
       },
       "load": {
         "table": "tb_cids",
@@ -238,7 +238,7 @@
         }
       },
       "validation": {
-        "required": ["tpa_id"]
+        "required": ["tpa_id", "tpa_descricao"]
       },
       "load": {
         "table": "tb_tipos_agendamento",
