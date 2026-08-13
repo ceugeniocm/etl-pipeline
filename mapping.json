@@ -141,7 +141,7 @@
         }
       },
       "validation": {
-        "required": ["conv_ans"]
+        "required": []
       },
       "load": {
         "table": "tb_convenios",
