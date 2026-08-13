@@ -102,6 +102,6 @@ CREATE TABLE IF NOT EXISTS tb_agendamentos (
     FOREIGN KEY (cli_id) REFERENCES tb_clinicas(cli_id),
     FOREIGN KEY (sala_id) REFERENCES tb_salas(sala_id),
     FOREIGN KEY (tpa_id) REFERENCES tb_tipos_agendamento(tpa_id),
-    FOREIGN KEY (tbl_idcid) REFERENCES tb_cids(tbl_idcid),
+--    FOREIGN KEY (tbl_idcid) REFERENCES tb_cids(tbl_idcid),
     FOREIGN KEY (user_id) REFERENCES tb_usuarios(user_id)
 );
