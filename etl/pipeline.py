@@ -138,8 +138,7 @@ class Pipeline:
                         self.config.mapping,
                     )
                     loader.check_target()
-                    loader.prepare()
-
+                    
                     # Loaders de dimensões (Task 71)
                     for dim_ctx in self.dimension_contexts:
                         dim_loader = Loader(
@@ -149,8 +148,11 @@ class Pipeline:
                             dim_ctx["config"].mapping,
                         )
                         dim_loader.check_target()
-                        # dim_loader.prepare()  # Dimensões usam upsert, não truncate
+                        dim_loader.prepare()  # Agora executa prepare para limpar se necessário (FR-010)
                         dim_ctx["loader"] = dim_loader
+
+                    # Prepare da fato por último para evitar Lock Wait Timeout ou outros problemas de concorrência com FK
+                    loader.prepare()
 
                 # 3. Iteração em blocos (lazy chain)
                 executor = None
@@ -260,6 +262,10 @@ class Pipeline:
                                     l_count, f_count = dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
                                     if f_count > 0:
                                         logger.warning(f"Dimension {dim_ctx['config'].load.table} had {f_count} failures in this batch.")
+                            
+                            # Forçamos o commit das dimensões antes da fato
+                            if not self.config.run.dry_run and conn:
+                                conn.commit()
 
                             if loader and b_data:
                                 l_count, f_count = loader.load_batch(

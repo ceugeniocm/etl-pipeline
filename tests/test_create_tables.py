@@ -12,7 +12,7 @@ class TestCreateTables(unittest.TestCase):
         cursor = conn.cursor()
         # Mock execute e nextset
         cursor.execute = MagicMock()
-        cursor.nextset = MagicMock(side_effect=[True, False])
+        cursor.nextset = MagicMock(return_value=False)
         
         script_path = "dummy.sql"
         script_content = "CREATE TABLE t1; CREATE TABLE t2;"
@@ -21,7 +21,10 @@ class TestCreateTables(unittest.TestCase):
             with patch("builtins.open", mock_open(read_data=script_content)):
                 execute_sql_script(conn, script_path)
         
-        cursor.execute.assert_called_once_with(script_content)
+        # Chamado uma vez para cada comando (separados por ;)
+        self.assertEqual(cursor.execute.call_count, 2)
+        cursor.execute.assert_any_call("CREATE TABLE t1")
+        cursor.execute.assert_any_call("CREATE TABLE t2")
         self.assertEqual(conn.committed, 1)
 
     def test_execute_sql_script_file_not_found(self):

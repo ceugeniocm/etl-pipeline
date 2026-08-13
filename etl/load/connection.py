@@ -133,11 +133,12 @@ def execute_sql_script(conn: Connection, script_path: str) -> None:
             content = f.read()
 
         cursor = conn.cursor()
-        # No mysql-connector 9.x+, execute() suporta múltiplos statements por padrão.
-        # Devemos consumir todos os result sets usando nextset().
-        cursor.execute(content)
-        while cursor.nextset():
-            pass
+        # Executa múltiplos statements separadamente para evitar problemas de timeout/protocolo
+        statements = [s.strip() for s in content.split(";") if s.strip()]
+        for statement in statements:
+            cursor.execute(statement)
+            while cursor.nextset():
+                pass
         cursor.close()
         conn.commit()
     except Exception as e:

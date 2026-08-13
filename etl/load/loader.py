@@ -70,11 +70,19 @@ class Loader:
             logger.info(messages.INFO_TRUNCATING_TABLE.format(table=self._table))
             cursor = self._conn.cursor()
             try:
-                # TRUNCATE no MySQL causa commit implícito
+                # TRUNCATE no MySQL causa commit implícito e falha se houver FK.
+                # Usamos DELETE se falhar ou se necessário, mas aqui tentaremos desabilitar checks temporariamente se for a fato.
+                # Para simplificar e garantir compatibilidade com FKs:
+                cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
                 cursor.execute(f"TRUNCATE TABLE `{self._table}`")
+                cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
                 self._conn.commit()
             except mysql.connector.Error as err:
                 self._conn.rollback()
+                try:
+                    cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+                except:
+                    pass
                 raise DatabaseConnectionError(messages.ERR_DB_CONNECTION_LOST, cause=err)
             finally:
                 cursor.close()

@@ -50,7 +50,7 @@
       },
       "load": {
         "table": "tb_profissionais",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": ["prof_id"]
       }
     },
@@ -71,7 +71,7 @@
       },
       "load": {
         "table": "tb_especialidades",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": ["esp_id"]
       }
     },
@@ -98,7 +98,7 @@
       },
       "load": {
         "table": "tb_beneficiarios",
-        "mode": "upsert",
+        "mode": "truncate",
         "unique_key": ["benef_id"]
       }
     },
