@@ -7,20 +7,20 @@
   },
   "mapping": "mapping.json",
   "validation": {
-    "required": [],
+    "required": [
+      "ag_id",
+      "prof_id",
+      "esp_id",
+      "benef_id",
+      "tblproced_id"
+    ],
     "ranges": {
-      "valor": {
-        "minimum": 0
-      }
     },
     "max_lengths": {
-      "paciente_nome": 255
     },
     "rejection_threshold": "100%",
     "business_key": [
-      "id_agendamento",
-      "benef_id",
-      "data_hora"
+      "ag_id"
     ],
     "on_duplicate": "report"
   },
@@ -38,8 +38,7 @@
     "mode": "truncate",
     "batch_size": 5000,
     "unique_key": [
-      "id_agendamento",
-      "data"
+      "ag_id"
     ],
     "on_batch_error": "isolate"
   },

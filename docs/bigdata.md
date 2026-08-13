@@ -189,21 +189,18 @@ Equivalente ao `apply_mapping()` de `etl/transform/mapping.py`, que transforma o
 # Mapeamento de colunas — equivalente ao mapping.json do projeto
 # Exemplo com as principais colunas da tb_agendamentos
 column_mapping = {
-    "AG_ID": "id_agendamento",
-    "TIPOAGENDA": "tipoagenda",
-    "AG_DTHORAAGENDA": "ag_dthoraagenda",
-    "DTHORAAGENDA": "data_hora",
-    "DATA": "data",
-    "AG_STATUSAGENDAMENTO": "status",
+    "AG_ID": "ag_id",
+    "AG_DTHORAAGENDA": "dthoraagenda",
+    "AG_STATUSAGENDAMENTO": "ag_statusagendamento",
     "PROF_ID": "prof_id",
     "PROF_NOME": "prof_nome",
     "ESP_ID": "esp_id",
     "ESP_DESCRICAO": "esp_descricao",
     "BENEF_ID": "benef_id",
-    "BENEF_NOME": "paciente_nome",
+    "BENEF_NOME": "benef_nome",
     "BENEF_CPF": "benef_cpf",
     "BENEF_DTNASC": "benef_dtnasc",
-    "AGP_VALOR": "valor",
+    "AGP_VALOR": "agp_valor",
 }
 
 # Aplicar o mapeamento usando select + alias
@@ -224,8 +221,8 @@ Equivalente ao `clean_row()` de `etl/transform/cleaning.py`, que aplica trim, co
 ```python
 # Colunas de texto que precisam de limpeza
 text_columns = [
-    "paciente_nome", "prof_nome", "esp_descricao", "status",
-    "benef_nomesocial", "benef_nomeafetivo", "benef_bairro",
+    "benef_nome", "prof_nome", "esp_descricao", "ag_statusagendamento",
+    "benef_bairro",
 ]
 
 # 1. Trim em todas as colunas de texto (equivalente ao strip() do clean_row)
@@ -240,7 +237,7 @@ for col_name in text_columns:
     )
 
 # 3. Normalização upper (equivalente ao normalizer "upper" no config)
-upper_columns = ["paciente_nome", "prof_nome", "esp_descricao"]
+upper_columns = ["benef_nome", "prof_nome", "esp_descricao"]
 for col_name in upper_columns:
     df_clean = df_clean.withColumn(col_name, F.upper(F.col(col_name)))
 
@@ -265,24 +262,22 @@ Equivalente ao `coerce_row()` de `etl/transform/types.py`, que converte valores 
 ```python
 # Coerção de tipos — equivalente ao "types" do mapping.json
 # Exemplo baseado nos tipos reais do projeto:
-#   "id_agendamento": "int", "ag_dthoraagenda": "datetime",
-#   "valor": "decimal", "data": "datetime", "prof_status": "int"
+#   "ag_id": "int", "dthoraagenda": "datetime",
+#   "agp_valor": "decimal", "prof_status": "int"
 
 # Inteiros (equivalente a coerce_value com target_type="int")
 int_columns = [
-    "id_agendamento", "tipoagenda", "ag_pendente", "prof_id",
-    "esp_id", "benef_id", "prof_status", "esp_corporativo",
+    "ag_id", "prof_id", "esp_id", "benef_id", "prof_status",
 ]
 for col_name in int_columns:
     df_typed = df_clean.withColumn(col_name, F.col(col_name).cast(LongType()))
 
 # Decimais (equivalente a coerce_value com target_type="decimal")
-df_typed = df_typed.withColumn("valor", F.col("valor").cast(DecimalType(15, 2)))
+df_typed = df_typed.withColumn("agp_valor", F.col("agp_valor").cast(DecimalType(10, 2)))
 
 # Datetime (equivalente a coerce_value com target_type="datetime")
 datetime_columns = [
-    "ag_dthoraagenda", "data", "ag_dthoraatendimento",
-    "ag_dthoracancel", "ag_dthoratransf",
+    "dthoraagenda", "benef_dtnasc",
 ]
 for col_name in datetime_columns:
     df_typed = df_typed.withColumn(col_name, F.col(col_name).cast(TimestampType()))

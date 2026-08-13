@@ -149,7 +149,7 @@ class Pipeline:
                             dim_ctx["config"].mapping,
                         )
                         dim_loader.check_target()
-                        dim_loader.prepare()
+                        # dim_loader.prepare()  # Dimensões usam upsert, não truncate
                         dim_ctx["loader"] = dim_loader
 
                 # 3. Iteração em blocos (lazy chain)
@@ -257,7 +257,9 @@ class Pipeline:
                             for i, dim_ctx in enumerate(self.dimension_contexts):
                                 db_batch = d_batches[i]
                                 if db_batch and dim_ctx["loader"]:
-                                    dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
+                                    l_count, f_count = dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
+                                    if f_count > 0:
+                                        logger.warning(f"Dimension {dim_ctx['config'].load.table} had {f_count} failures in this batch.")
 
                             if loader and b_data:
                                 l_count, f_count = loader.load_batch(
