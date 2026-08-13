@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS tb_profissionais (
 CREATE TABLE IF NOT EXISTS tb_especialidades (
     esp_id BIGINT PRIMARY KEY,
     esp_descricao VARCHAR(100),
-    esp_cmed INT
+    esp_cmed VARCHAR(1)
 );
 
 CREATE TABLE IF NOT EXISTS tb_beneficiarios (

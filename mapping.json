@@ -63,7 +63,7 @@
         },
         "types": {
           "esp_id": "int",
-          "esp_cmed": "int"
+          "esp_cmed": "str"
         }
       },
       "validation": {
@@ -79,7 +79,7 @@
       "mapping": {
         "columns": {
           "BENEF_ID": "benef_id",
-          "PACIENTE_NOME": "benef_nome",
+          "BENEF_NOME": "benef_nome",
           "BENEF_DTNASC": "benef_dtnasc",
           "BENEF_CPF": "benef_cpf",
           "BENEF_SEXO": "benef_sexo",
@@ -161,7 +161,7 @@
         }
       },
       "validation": {
-        "required": ["plano_id", "conv_ans", "plano_descricao"]
+        "required": ["plano_id"]
       },
       "load": {
         "table": "tb_planos",
@@ -181,7 +181,7 @@
         }
       },
       "validation": {
-        "required": ["cli_id", "cli_corporativo"]
+        "required": ["cli_id"]
       },
       "load": {
         "table": "tb_clinicas",
@@ -219,7 +219,6 @@
         }
       },
       "validation": {
-        "required": ["tbl_idcid", "cid_id"]
       },
       "load": {
         "table": "tb_cids",
@@ -238,7 +237,7 @@
         }
       },
       "validation": {
-        "required": ["tpa_id", "tpa_descricao"]
+        "required": ["tpa_id"]
       },
       "load": {
         "table": "tb_tipos_agendamento",
