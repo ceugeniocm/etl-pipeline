@@ -92,7 +92,7 @@ class Loader:
         batch_data: list[tuple[int, dict[str, Any]]],
         on_success: Callable[[int], None] | None = None,
         auto_commit: bool = True,
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int, set[int]]:
         """Grava um lote de registros no banco (FR-009, tarefa 38).
 
         Respeita o tamanho de lote (batch_size) configurado, dividindo o conjunto
@@ -100,13 +100,14 @@ class Loader:
 
         :param batch_data: lista de tuplas (número_da_linha, valores).
         :param on_success: Callback chamado com o número da última linha commitada.
-        :return: tupla com (quantidade_carregada, quantidade_falhada).
+        :return: tupla com (quantidade_carregada, quantidade_falhada, conjunto_de_linhas_falhadas).
         """
         if not batch_data:
-            return 0, 0
+            return 0, 0, set()
 
         loaded = 0
         failed = 0
+        failed_rows = set()
         batch_size = self._load_config.batch_size
         sql = self._get_insert_sql()
 
@@ -146,23 +147,25 @@ class Loader:
                         first_row=sub_batch[0][0], size=len(sub_batch), reason=str(err)
                     )
                 )
-                l, f = self._load_row_by_row(sub_batch, on_success, auto_commit=auto_commit)
+                l, f, f_rows = self._load_row_by_row(sub_batch, on_success, auto_commit=auto_commit)
                 loaded += l
                 failed += f
+                failed_rows.update(f_rows)
             finally:
                 cursor.close()
 
-        return loaded, failed
+        return loaded, failed, failed_rows
 
     def _load_row_by_row(
         self,
         batch_data: list[tuple[int, dict[str, Any]]],
         on_success: Callable[[int], None] | None = None,
         auto_commit: bool = True,
-    ) -> tuple[int, int]:
+    ) -> tuple[int, int, set[int]]:
         """Tenta inserir cada linha individualmente após falha do lote (tarefa 40)."""
         loaded = 0
         failed = 0
+        failed_rows = set()
         sql = self._get_insert_sql()
         cursor = self._conn.cursor()
         for row_number, values in batch_data:
@@ -177,10 +180,11 @@ class Loader:
             except mysql.connector.Error as err:
                 self._conn.rollback()
                 failed += 1
+                failed_rows.add(row_number)
                 logger.error(
                     messages.ERR_LOAD_ROW_FAILED.format(row=row_number, reason=str(err))
                 )
-        return loaded, failed
+        return loaded, failed, failed_rows
 
     def _get_insert_sql(self) -> str:
         """Gera o comando SQL de inserção conforme o modo (tarefas 41, 43)."""

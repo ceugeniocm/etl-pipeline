@@ -206,23 +206,32 @@ class Pipeline:
 
                         for row_number, sheet_name, outcome, dim_outcomes in results:
                             # Processamento de dimensões (Deduplicação centralizada)
+                            dim_error = False
                             for i, d_outcome in enumerate(dim_outcomes):
-                                if not isinstance(
-                                    d_outcome, list
-                                ):  # Se passou na validação
-                                    dim_ctx = self.dimension_contexts[i]
-                                    dim_cfg = dim_ctx["config"]
-                                    key = self._get_unique_key_value(
-                                        d_outcome, dim_cfg.load.unique_key
+                                if isinstance(d_outcome, list):  # Erro de validação na dimensão
+                                    self.stats.rejected += 1
+                                    self.reporter.write(d_outcome)
+                                    self.threshold.count(is_rejected=True)
+                                    dim_error = True
+                                    continue
+                                
+                                dim_ctx = self.dimension_contexts[i]
+                                dim_cfg = dim_ctx["config"]
+                                key = self._get_unique_key_value(
+                                    d_outcome, dim_cfg.load.unique_key
+                                )
+                                if (
+                                    all(v is not None for v in key)
+                                    and key not in dim_ctx["seen"]
+                                ):
+                                    dimension_batches[i].append(
+                                        (row_number, d_outcome)
                                     )
-                                    if (
-                                        all(v is not None for v in key)
-                                        and key not in dim_ctx["seen"]
-                                    ):
-                                        dimension_batches[i].append(
-                                            (row_number, d_outcome)
-                                        )
-                                        dim_ctx["seen"].add(key)
+                                    dim_ctx["seen"].add(key)
+                            
+                            if dim_error:
+                                # Se qualquer dimensão falhou na validação, rejeitamos a fato
+                                continue
 
                             # Pipeline de transformação da fato (Deduplicação centralizada)
                             if isinstance(outcome, list):  # Rejeições de validação
@@ -256,28 +265,51 @@ class Pipeline:
                         def _perform_load(b_data, d_batches):
                             """Executa a carga de um lote (dimensões e fato)."""
                             # Carga das dimensões antes da fato (Task 71)
+                            failed_rows = set()
                             for i, dim_ctx in enumerate(self.dimension_contexts):
                                 db_batch = d_batches[i]
                                 if db_batch and dim_ctx["loader"]:
-                                    l_count, f_count = dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
+                                    l_count, f_count, f_rows = dim_ctx["loader"].load_batch(db_batch, auto_commit=False)
                                     if f_count > 0:
                                         logger.warning(f"Dimension {dim_ctx['config'].load.table} had {f_count} failures in this batch.")
+                                        failed_rows.update(f_rows)
                             
+                            # Filtra a fato: se uma dimensão falhou para aquela linha, removemos da carga da fato
+                            to_load_fact = []
+                            for row_num, data in b_data:
+                                if row_num in failed_rows:
+                                    logger.error(f"Linha {row_num} rejeitada na fato por falha na carga de dimensões.")
+                                else:
+                                    to_load_fact.append((row_num, data))
+                            
+                            rejected_fact_count = len(b_data) - len(to_load_fact)
+
                             # Forçamos o commit das dimensões antes da fato
                             if not self.config.run.dry_run and conn:
-                                conn.commit()
+                                try:
+                                    conn.commit()
+                                except Exception as e:
+                                    logger.error(f"Erro ao commitar dimensões: {e}")
+                                    conn.rollback()
+                                    return 0, len(b_data) # Rejeita o lote todo da fato
 
-                            if loader and b_data:
-                                l_count, f_count = loader.load_batch(
-                                    b_data, on_success=None, auto_commit=False
+                            if loader and to_load_fact:
+                                l_count, f_count, _ = loader.load_batch(
+                                    to_load_fact, on_success=None, auto_commit=False
                                 )
-                                conn.commit()
-                                save_cb(b_data[-1][0])
-                                return l_count, f_count
+                                try:
+                                    conn.commit()
+                                    save_cb(to_load_fact[-1][0])
+                                except Exception as e:
+                                    logger.error(f"Erro ao commitar fato: {e}")
+                                    conn.rollback()
+                                    return 0, len(b_data)
+                                return l_count, f_count + rejected_fact_count
                             elif b_data:
-                                # Dry-run: salvamos o ponto ao final do bloco
-                                save_cb(b_data[-1][0])
-                                return len(b_data), 0
+                                # Dry-run ou lote vazio após filtro
+                                if to_load_fact:
+                                    save_cb(to_load_fact[-1][0])
+                                return len(to_load_fact), rejected_fact_count
 
                             if not self.config.run.dry_run and conn:
                                 conn.commit()

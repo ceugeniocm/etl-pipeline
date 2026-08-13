@@ -118,10 +118,11 @@ class TestLoader(unittest.TestCase):
         """Carrega um lote com sucesso e faz commit."""
         batch = [(1, {"col1": "v1", "col2": "v2"}), (2, {"col1": "v3", "col2": "v4"})]
 
-        loaded, failed = self.loader.load_batch(batch)
+        loaded, failed, f_rows = self.loader.load_batch(batch)
 
         self.assertEqual(loaded, 2)
         self.assertEqual(failed, 0)
+        self.assertEqual(len(f_rows), 0)
         self.assertEqual(self.conn.committed, 1)
 
         # Verifica se usou executemany
@@ -141,10 +142,11 @@ class TestLoader(unittest.TestCase):
         self.conn.cursor_instance.executemany = fail_executemany
         batch = [(1, {"col1": "v1", "col2": "v2"}), (2, {"col1": "v3", "col2": "v4"})]
 
-        loaded, failed = self.loader.load_batch(batch)
+        loaded, failed, f_rows = self.loader.load_batch(batch)
 
         self.assertEqual(loaded, 2)
         self.assertEqual(failed, 0)
+        self.assertEqual(len(f_rows), 0)
         # 1 rollback do lote + 2 commits individuais
         self.assertEqual(self.conn.rolled_back, 1)
         self.assertEqual(self.conn.committed, 2)
@@ -159,10 +161,11 @@ class TestLoader(unittest.TestCase):
         self.conn.cursor_instance.execute = fail_all
 
         batch = [(1, {"col1": "v1"})]
-        loaded, failed = self.loader.load_batch(batch)
+        loaded, failed, f_rows = self.loader.load_batch(batch)
 
         self.assertEqual(loaded, 0)
         self.assertEqual(failed, 1)
+        self.assertEqual(f_rows, {1})
         self.assertEqual(self.conn.rolled_back, 2)  # Um do lote, um da linha
 
     def test_load_batch_failure_abort(self):
